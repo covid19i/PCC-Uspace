@@ -42,154 +42,167 @@ written by
 #define __UDT_COMMON_H__
 
 
+#ifndef WIN32
+   #include <sys/time.h>
+   #include <sys/uio.h>
+   #include <pthread.h>
+#else
+   #include <windows.h>
+#endif
+#include <cstdlib>
 #include "udt.h"
 
-#include <cstdlib>
-#ifndef WIN32
-#include <pthread.h>
-#include <sys/time.h>
-#include <sys/uio.h>
-#else
-#include <windows.h>
-#endif
 
 #ifdef WIN32
-// Windows compability
-typedef HANDLE pthread_t;
-typedef HANDLE pthread_mutex_t;
-typedef HANDLE pthread_cond_t;
-typedef DWORD pthread_key_t;
+   // Windows compability
+   typedef HANDLE pthread_t;
+   typedef HANDLE pthread_mutex_t;
+   typedef HANDLE pthread_cond_t;
+   typedef DWORD pthread_key_t;
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class CTimer {
- public:
-  CTimer();
-  ~CTimer();
+class CTimer
+{
+public:
+   CTimer();
+   ~CTimer();
 
-  // Functionality:
-  //    Sleep for "interval" CCs.
-  // Parameters:
-  //    0) [in] interval: CCs to sleep.
-  // Returned value:
-  //    None.
-  void sleep(const uint64_t& interval);
+public:
 
-  // Functionality:
-  //    Seelp until CC "nexttime".
-  // Parameters:
-  //    0) [in] nexttime: next time the caller is waken up.
-  // Returned value:
-  //    None.
-  void sleepto(const uint64_t& nexttime);
+      // Functionality:
+      //    Sleep for "interval" CCs.
+      // Parameters:
+      //    0) [in] interval: CCs to sleep.
+      // Returned value:
+      //    None.
 
-  // Functionality:
-  //    Stop the sleep() or sleepto() methods.
-  // Parameters:
-  //    None.
-  // Returned value:
-  //    None.
-  void interrupt();
+   void sleep(const uint64_t& interval);
 
-  // Functionality:
-  //    trigger the clock for a tick, for better granuality in no_busy_waiting
-  //    timer.
-  // Parameters:
-  //    None.
-  // Returned value:
-  //    None.
-  void tick();
+      // Functionality:
+      //    Seelp until CC "nexttime".
+      // Parameters:
+      //    0) [in] nexttime: next time the caller is waken up.
+      // Returned value:
+      //    None.
 
-  // Functionality:
-  //    Read the CPU clock cycle into x.
-  // Parameters:
-  //    0) [out] x: to record cpu clock cycles.
-  // Returned value:
-  //    None.
-  static void rdtsc(uint64_t &x);
+   void sleepto(const uint64_t& nexttime);
 
-  // Functionality:
-  //    return the CPU frequency.
-  // Parameters:
-  //    None.
-  // Returned value:
-  //    CPU frequency.
-  static uint64_t getCPUFrequency();
+      // Functionality:
+      //    Stop the sleep() or sleepto() methods.
+      // Parameters:
+      //    None.
+      // Returned value:
+      //    None.
 
-  // Functionality:
-  //    check the current time, 64bit, in microseconds.
-  // Parameters:
-  //    None.
-  // Returned value:
-  //    current time in microseconds.
-  static uint64_t getTime();
+   void interrupt();
 
-  // Functionality:
-  //    trigger an event such as new connection, close, new data, etc. for
-  //    "select" call.
-  // Parameters:
-  //    None.
-  // Returned value:
-  //    None.
-  static void triggerEvent();
+      // Functionality:
+      //    trigger the clock for a tick, for better granuality in no_busy_waiting timer.
+      // Parameters:
+      //    None.
+      // Returned value:
+      //    None.
 
-  // Functionality:
-  //    wait for an event to br triggered by "triggerEvent".
-  // Parameters:
-  //    None.
-  // Returned value:
-  //    None.
-  static void waitForEvent();
+   void tick();
 
-  // Functionality:
-  //    sleep for a short interval. exact sleep time does not matter
-  // Parameters:
-  //    None.
-  // Returned value:
-  //    None.
-  static void sleep();
+public:
 
- private:
-  // next schedulled time
-  uint64_t m_ullSchedTime;
+      // Functionality:
+      //    Read the CPU clock cycle into x.
+      // Parameters:
+      //    0) [out] x: to record cpu clock cycles.
+      // Returned value:
+      //    None.
 
-  pthread_cond_t m_TickCond;
-  pthread_mutex_t m_TickLock;
+   static void rdtsc(uint64_t &x);
 
-  static pthread_cond_t m_EventCond;
-  static pthread_mutex_t m_EventLock;
+      // Functionality:
+      //    return the CPU frequency.
+      // Parameters:
+      //    None.
+      // Returned value:
+      //    CPU frequency.
 
-  // CPU frequency : clock cycles per microsecond
-  static uint64_t s_ullCPUFrequency;
-  static uint64_t readCPUFrequency();
+   static uint64_t getCPUFrequency();
+
+      // Functionality:
+      //    check the current time, 64bit, in microseconds.
+      // Parameters:
+      //    None.
+      // Returned value:
+      //    current time in microseconds.
+
+   static uint64_t getTime();
+
+      // Functionality:
+      //    trigger an event such as new connection, close, new data, etc. for "select" call.
+      // Parameters:
+      //    None.
+      // Returned value:
+      //    None.
+
+   static void triggerEvent();
+
+      // Functionality:
+      //    wait for an event to br triggered by "triggerEvent".
+      // Parameters:
+      //    None.
+      // Returned value:
+      //    None.
+
+   static void waitForEvent();
+
+      // Functionality:
+      //    sleep for a short interval. exact sleep time does not matter
+      // Parameters:
+      //    None.
+      // Returned value:
+      //    None.
+
+   static void sleep();
+
+private:
+   uint64_t m_ullSchedTime;             // next schedulled time
+
+   pthread_cond_t m_TickCond;
+   pthread_mutex_t m_TickLock;
+
+   static pthread_cond_t m_EventCond;
+   static pthread_mutex_t m_EventLock;
+
+private:
+   static uint64_t s_ullCPUFrequency;	// CPU frequency : clock cycles per microsecond
+   static uint64_t readCPUFrequency();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class CGuard {
- public:
-  CGuard(pthread_mutex_t& lock);
-  ~CGuard();
+class CGuard
+{
+public:
+   CGuard(pthread_mutex_t& lock);
+   ~CGuard();
 
-  static void enterCS(pthread_mutex_t& lock);
-  static void leaveCS(pthread_mutex_t& lock);
+public:
+   static void enterCS(pthread_mutex_t& lock);
+   static void leaveCS(pthread_mutex_t& lock);
 
-  static void createMutex(pthread_mutex_t& lock);
-  static void releaseMutex(pthread_mutex_t& lock);
+   static void createMutex(pthread_mutex_t& lock);
+   static void releaseMutex(pthread_mutex_t& lock);
 
-  static void createCond(pthread_cond_t& cond);
-  static void releaseCond(pthread_cond_t& cond);
+   static void createCond(pthread_cond_t& cond);
+   static void releaseCond(pthread_cond_t& cond);
 
- private:
-  // Alias name of the mutex to be protected
-  pthread_mutex_t& m_Mutex;
-  // Locking status
-  int m_iLocked;
+private:
+   pthread_mutex_t& m_Mutex;            // Alias name of the mutex to be protected
+   int m_iLocked;                       // Locking status
 
-  CGuard& operator=(const CGuard&);
+   CGuard& operator=(const CGuard&);
 };
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,118 +216,100 @@ class CGuard {
 // decseq: decrease the seq# by 1
 // incseq: increase the seq# by a given offset
 
-class CSeqNo {
- public:
-  inline static int seqcmp(const int32_t& seq1, const int32_t& seq2) {
-    return abs(seq1 - seq2) < m_iSeqNoTH ? seq1 - seq2 : seq2 - seq1;
-  }
+class CSeqNo
+{
+public:
+   inline static int seqcmp(const int32_t& seq1, const int32_t& seq2)
+   {return (abs(seq1 - seq2) < m_iSeqNoTH) ? (seq1 - seq2) : (seq2 - seq1);}
 
-  inline static int seqlen(const int32_t& seq1, const int32_t& seq2) {
-    return seq1 <= seq2 ? seq2 - seq1 + 1 : seq2 - seq1 + m_iMaxSeqNo + 2;
-  }
+   inline static int seqlen(const int32_t& seq1, const int32_t& seq2)
+   {return (seq1 <= seq2) ? (seq2 - seq1 + 1) : (seq2 - seq1 + m_iMaxSeqNo + 2);}
 
-  inline static int seqoff(const int32_t& seq1, const int32_t& seq2) {
-    if (abs(seq1 - seq2) < m_iSeqNoTH) {
-      return seq2 - seq1;
-    }
+   inline static int seqoff(const int32_t& seq1, const int32_t& seq2)
+   {
+      if (abs(seq1 - seq2) < m_iSeqNoTH)
+         return seq2 - seq1;
 
-    if (seq1 < seq2) {
-      return seq2 - seq1 - m_iMaxSeqNo - 1;
-    }
+      if (seq1 < seq2)
+         return seq2 - seq1 - m_iMaxSeqNo - 1;
 
-    return seq2 - seq1 + m_iMaxSeqNo + 1;
-  }
+      return seq2 - seq1 + m_iMaxSeqNo + 1;
+   }
 
-  inline static int32_t incseq(const int32_t seq) {
-    return seq == m_iMaxSeqNo ? 0 : seq + 1;
-  }
+   inline static int32_t incseq(const int32_t seq)
+   {return (seq == m_iMaxSeqNo) ? 0 : seq + 1;}
 
-  inline static int32_t decseq(const int32_t& seq) {
-    return seq == 0 ? m_iMaxSeqNo : seq - 1;
-  }
+   inline static int32_t decseq(const int32_t& seq)
+   {return (seq == 0) ? m_iMaxSeqNo : seq - 1;}
 
-  inline static int32_t incseq(const int32_t& seq, const int32_t& inc) {
-    return m_iMaxSeqNo - seq >= inc ? seq + inc : seq - m_iMaxSeqNo + inc - 1;
-  }
+   inline static int32_t incseq(const int32_t& seq, const int32_t& inc)
+   {return (m_iMaxSeqNo - seq >= inc) ? seq + inc : seq - m_iMaxSeqNo + inc - 1;}
 
-  // threshold for comparing seq. no.
-  static const int32_t m_iSeqNoTH;
-  // maximum sequence number used in UDT
-  static const int32_t m_iMaxSeqNo;
+public:
+   static const int32_t m_iSeqNoTH;             // threshold for comparing seq. no.
+   static const int32_t m_iMaxSeqNo;            // maximum sequence number used in UDT
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // UDT ACK Sub-sequence Number: 0 - (2^31 - 1)
 
-class CAckNo {
- public:
-  inline static int32_t incack(const int32_t& ackno) {
-    return (ackno == m_iMaxAckSeqNo) ? 0 : ackno + 1;
-  }
+class CAckNo
+{
+public:
+   inline static int32_t incack(const int32_t& ackno)
+   {return (ackno == m_iMaxAckSeqNo) ? 0 : ackno + 1;}
 
-  // maximum ACK sub-sequence number used in UDT
-  static const int32_t m_iMaxAckSeqNo;
+public:
+   static const int32_t m_iMaxAckSeqNo;         // maximum ACK sub-sequence number used in UDT
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // UDT Message Number: 0 - (2^29 - 1)
 
-class CMsgNo {
- public:
-  inline static int msgcmp(const int32_t& msgno1, const int32_t& msgno2) {
-    return abs(msgno1 - msgno2) < m_iMsgNoTH
-        ? msgno1 - msgno2
-        : msgno2 - msgno1;
-  }
+class CMsgNo
+{
+public:
+   inline static int msgcmp(const int32_t& msgno1, const int32_t& msgno2)
+   {return (abs(msgno1 - msgno2) < m_iMsgNoTH) ? (msgno1 - msgno2) : (msgno2 - msgno1);}
 
-  inline static int msglen(const int32_t& msgno1, const int32_t& msgno2) {
-    return msgno1 <= msgno2
-        ? msgno2 - msgno1 + 1
-        : msgno2 - msgno1 + m_iMaxMsgNo + 2;
-  }
+   inline static int msglen(const int32_t& msgno1, const int32_t& msgno2)
+   {return (msgno1 <= msgno2) ? (msgno2 - msgno1 + 1) : (msgno2 - msgno1 + m_iMaxMsgNo + 2);}
 
-  inline static int msgoff(const int32_t& msgno1, const int32_t& msgno2) {
-    if (abs(msgno1 - msgno2) < m_iMsgNoTH) {
-      return msgno2 - msgno1;
-    }
+   inline static int msgoff(const int32_t& msgno1, const int32_t& msgno2)
+   {
+      if (abs(msgno1 - msgno2) < m_iMsgNoTH)
+         return msgno2 - msgno1;
 
-    if (msgno1 < msgno2) {
-      return msgno2 - msgno1 - m_iMaxMsgNo - 1;
-    }
+      if (msgno1 < msgno2)
+         return msgno2 - msgno1 - m_iMaxMsgNo - 1;
 
-    return msgno2 - msgno1 + m_iMaxMsgNo + 1;
-  }
+      return msgno2 - msgno1 + m_iMaxMsgNo + 1;
+   }
 
-  inline static int32_t incmsg(const int32_t& msgno) {
-    return msgno == m_iMaxMsgNo ? 0 : msgno + 1;
-  }
+   inline static int32_t incmsg(const int32_t& msgno)
+   {return (msgno == m_iMaxMsgNo) ? 0 : msgno + 1;}
 
-  // threshold for comparing msg. no.
-  static const int32_t m_iMsgNoTH;
-  // maximum message number used in UDT
-  static const int32_t m_iMaxMsgNo;
+public:
+   static const int32_t m_iMsgNoTH;             // threshold for comparing msg. no.
+   static const int32_t m_iMaxMsgNo;            // maximum message number used in UDT
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct CIPAddress {
-  static bool ipcmp(const sockaddr* addr1,
-                    const sockaddr* addr2,
-                    const int& ver = AF_INET);
-  static void ntop(const sockaddr* addr,
-                   uint32_t ip[4],
-                   const int& ver = AF_INET);
-  static void pton(sockaddr* addr,
-                   const uint32_t ip[4],
-                   const int& ver = AF_INET);
+struct CIPAddress
+{
+   static bool ipcmp(const sockaddr* addr1, const sockaddr* addr2, const int& ver = AF_INET);
+   static void ntop(const sockaddr* addr, uint32_t ip[4], const int& ver = AF_INET);
+   static void pton(sockaddr* addr, const uint32_t ip[4], const int& ver = AF_INET);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct CMD5 {
-  static void compute(const char* input, unsigned char result[16]);
+struct CMD5
+{
+   static void compute(const char* input, unsigned char result[16]);
 };
 
 
