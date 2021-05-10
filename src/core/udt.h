@@ -82,6 +82,7 @@ written by
       #endif
 
       #ifdef UDT_EXPORTS
+         // https://docs.microsoft.com/en-us/cpp/cpp/using-dllimport-and-dllexport-in-cpp-classes?redirectedfrom=MSDN&view=msvc-160
          #define UDT_API __declspec(dllexport)
       #else
          #define UDT_API __declspec(dllimport)

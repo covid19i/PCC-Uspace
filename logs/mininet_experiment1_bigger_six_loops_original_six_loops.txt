@@ -1,0 +1,362 @@
+(my_env) ubuntu@ip-172-31-65-42:~/PCC-Uspace/src$ sudo ~/mininet/examples/sshd.py
+*** Creating network
+*** Adding controller
+*** Adding hosts:
+h1 h2 h3 h4 
+*** Adding switches:
+s1 
+*** Adding links:
+(s1, h1) (s1, h2) (s1, h3) (s1, h4) 
+*** Configuring hosts
+h1 h2 h3 h4 
+*** Starting controller
+c0 
+*** Starting 1 switches
+s1 ...
+*** Waiting for switches to connect
+s1 
+*** Waiting for ssh daemons to start
+
+*** Hosts are running sshd at the following addresses:
+h1 10.0.0.1 
+h2 10.0.0.2 
+h3 10.0.0.3 
+h4 10.0.0.4 
+
+*** Type 'exit' or control-D to shut down network
+*** Starting CLI:
+mininet> h1 source /home/ubuntu/environments/my_env/bin/activate
+(my_env) mininet> h2 source /home/ubuntu/environments/my_env/bin/activate
+(my_env) mininet> h1 cd /home/ubuntu/PCC-Uspace/src
+(my_env) mininet> h2 cd /home/ubuntu/PCC-Uspace/src
+(my_env) mininet> h1 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/
+(my_env) mininet> h2 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/
+(my_env) mininet> h1 ./app/pccserver recv 9000 &
+(my_env) mininet> h2 ./app/pccclient send h1 pcc-rate-control=python -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ --history-len=10 --pcc-utility-calc=linear --model-path=/home/ubuntu/models/bigger_six_loops/
+usage: .../pccclient <send|recv> server_ip server_port [OPTIONS]
+(my_env) h2 ./app/pccclient send 10.0.0.1 9000 --pcc-rate-control=python -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ --history-len=10 --pcc-utility-calc=linear --model-path=/home/ubuntu/models/bigger_six_loops/
+Starting sending rate = 2.24e+06
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:22: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2021-03-20 18:40:42.463539: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: :/home/ubuntu/PCC-Uspace/src/core/
+2021-03-20 18:40:42.463586: E tensorflow/stream_executor/cuda/cuda_driver.cc:318] failed call to cuInit: UNKNOWN ERROR (303)
+2021-03-20 18:40:42.463617: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (ip-172-31-65-42): /proc/driver/nvidia/version does not exist
+2021-03-20 18:40:42.463961: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2021-03-20 18:40:42.470933: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2300050000 Hz
+2021-03-20 18:40:42.471314: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x55d6b5d9b800 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-03-20 18:40:42.471343: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:25: The name tf.saved_model.tag_constants.SERVING is deprecated. Please use tf.saved_model.SERVING instead.
+
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:25: load (from tensorflow.python.saved_model.loader_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This function will only be available through the v1 compatibility library as tf.compat.v1.saved_model.loader.load or tf.compat.v1.saved_model.load. There will be a new function for importing SavedModels in Tensorflow 2.0.
+connect
+finished connect
+	Rate (Mbps)	RTT (ms)	Sent		Lost
+1	6.36691		0.320874		575		12
+2	3.29472		0.290944		858		12
+3	1.67646		0.341226		1002		12
+4	0.931348		0.370479		1082		12
+5	0.617024		0.446673		1135		12
+6	0.488969		0.397788		1177		12
+7	0.477309		0.376878		1218		12
+8	0.488958		0.478361		1260		12
+9	0.48896		0.410718		1302		12
+10	0.47732		0.366579		1343		12
+11	0.488957		0.453788		1385		12
+12	0.489104		0.425165		1427		12
+13	0.48896		0.509672		1469		12
+14	0.477329		0.454559		1510		12
+15	0.488971		0.398376		1552		12
+16	0.488958		0.490826		1594		12
+17	0.477315		0.496823		1635		12
+18	0.488938		0.41439		1677		12
+19	0.488961		0.510476		1719		12
+20	0.477305		0.48502		1760		12
+21	0.488956		0.425127		1802		12
+22	0.488948		0.547167		1844		12
+23	0.477316		0.489991		1885		12
+24	0.488952		0.399755		1927		12
+25	0.488955		0.512577		1969		12
+26	0.488966		0.45115		2011		12
+27	0.47732		0.425378		2052		12
+28	0.488954		0.52761		2094		12
+29	0.48896		0.434284		2136		12
+30	0.477313		0.390545		2177		12
+31	0.488962		0.505052		2219		12
+32	0.488969		0.425853		2261		12
+33	0.47731		0.385513		2302		12
+34	0.48895		0.501423		2344		12
+35	0.488952		0.418714		2386		12
+36	0.477326		0.399768		2427		12
+37	0.488963		0.508145		2469		12
+38	0.488963		0.435711		2511		12
+39	0.477319		0.378478		2552		12
+40	0.488955		0.489668		2594		12
+41	0.488962		0.409025		2636		12
+42	0.488956		0.349024		2678		12
+43	0.477358		0.497788		2719		12
+44	0.488948		0.412415		2761		12
+45	0.488971		0.33441		2803		12
+46	0.477315		0.49381		2844		12
+47	0.488968		0.440733		2886		12
+48	0.488955		0.34924		2928		12
+49	0.477317		0.503774		2969		12
+50	0.488959		0.427414		3011		12
+51	0.488945		0.382918		3053		12
+52	0.477305		0.538753		3094		12
+53	0.48895		0.43795		3136		12
+54	0.488954		0.355192		3178		12
+55	0.477317		0.51368		3219		12
+56	0.48891		0.423087		3261		12
+57	0.488951		0.360713		3303		12
+58	0.488968		0.48709		3345		12
+59	0.47732		0.431375		3386		12
+
+
+
+60	0.488955		0.363554		3428		12
+61	0.488963		0.468204		3470		12
+62	0.477312		0.429343		3511		12
+63	0.488961		0.361907		3553		12
+64	0.488972		0.462721		3595		12
+65	0.477296		0.441067		3636		12
+66	0.488916		0.379375		3678		12
+67	0.488952		0.488401		3720		12
+^C68	0.47732		0.420109		3761		12
+69	0.488959		0.412607		3803		12
+70	0.488961		0.473216		3845		12
+71	0.488969		0.392353		3887		12
+72	0.477312		0.376727		3928		12
+
+
+
+^J^C^C^J^Z
+[2]+  Stopped                 sudo ~/mininet/examples/sshd.py
+(my_env) ubuntu@ip-172-31-65-42:~/PCC-Uspace/src$ fg
+sudo ~/mininet/examples/sshd.py
+
+
+
+ls
+ps
+h1 ps
+^C
+^C
+
+
+
+^Z
+[2]+  Stopped                 sudo ~/mininet/examples/sshd.py
+(my_env) ubuntu@ip-172-31-65-42:~/PCC-Uspace/src$ ps
+  PID TTY          TIME CMD
+29444 pts/0    00:00:00 bash
+31244 pts/0    00:00:00 ps
+(my_env) ubuntu@ip-172-31-65-42:~/PCC-Uspace/src$ sudo mn -c
+*** Removing excess controllers/ofprotocols/ofdatapaths/pings/noxes
+killall controller ofprotocol ofdatapath ping nox_corelt-nox_core ovs-openflowd ovs-controllerovs-testcontroller udpbwtest mnexec ivs ryu-manager 2> /dev/null
+killall -9 controller ofprotocol ofdatapath ping nox_corelt-nox_core ovs-openflowd ovs-controllerovs-testcontroller udpbwtest mnexec ivs ryu-manager 2> /dev/null
+pkill -9 -f "sudo mnexec"
+*** Removing junk from /tmp
+rm -f /tmp/vconn* /tmp/vlogs* /tmp/*.out /tmp/*.log
+*** Removing old X11 tunnels
+*** Removing excess kernel datapaths
+ps ax | egrep -o 'dp[0-9]+' | sed 's/dp/nl:/'
+***  Removing OVS datapaths
+ovs-vsctl --timeout=1 list-br
+ovs-vsctl --if-exists del-br s1
+ovs-vsctl --timeout=1 list-br
+*** Removing all links of the pattern foo-ethX
+ip link show | egrep -o '([-_.[:alnum:]]+-eth[[:digit:]]+)'
+( ip link del s1-eth1;ip link del s1-eth2;ip link del s1-eth3;ip link del s1-eth4;ip link del s1-eth5;ip link del root-eth0;ip link del root-eth0;ip link del s1-eth5 ) 2> /dev/null
+ip link show
+*** Killing stale mininet node processes
+pkill -9 -f mininet:
+*** Shutting down stale tunnels
+pkill -9 -f Tunnel=Ethernet
+pkill -9 -f .ssh/mn
+rm -f ~/.ssh/mn/*
+*** Cleanup complete.
+(my_env) ubuntu@ip-172-31-65-42:~/PCC-Uspace/src$ sudo ~/mininet/examples/sshd.py
+*** Creating network
+*** Adding controller
+*** Adding hosts:
+h1 h2 h3 h4 
+*** Adding switches:
+s1 
+*** Adding links:
+(s1, h1) (s1, h2) (s1, h3) (s1, h4) 
+*** Configuring hosts
+h1 h2 h3 h4 
+*** Starting controller
+c0 
+*** Starting 1 switches
+s1 ...
+*** Waiting for switches to connect
+s1 
+*** Waiting for ssh daemons to start
+
+*** Hosts are running sshd at the following addresses:
+h1 10.0.0.1 
+h2 10.0.0.2 
+h3 10.0.0.3 
+h4 10.0.0.4 
+
+*** Type 'exit' or control-D to shut down network
+*** Starting CLI:
+mininet> h1 source /home/ubuntu/environments/my_env/bin/activate
+(my_env) mininet> h2 source /home/ubuntu/environments/my_env/bin/activate
+(my_env) mininet> h1 cd /home/ubuntu/PCC-Uspace/src
+(my_env) mininet> h2 cd /home/ubuntu/PCC-Uspace/src
+(my_env) mininet> h1 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/
+(my_env) mininet> h2 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/
+(my_env) mininet> h1 ./app/pccserver recv 9000 &
+(my_env) mininet> h2 ./app/pccclient send 10.0.0.1 9000 --pcc-rate-control=python -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ --history-lcc-utility-calc=linear --model-path=/home/ubuntu/models/original_six_loops/
+Starting sending rate = 2.24e+06
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:22: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2021-03-20 18:47:21.187043: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: :/home/ubuntu/PCC-Uspace/src/core/
+2021-03-20 18:47:21.187085: E tensorflow/stream_executor/cuda/cuda_driver.cc:318] failed call to cuInit: UNKNOWN ERROR (303)
+2021-03-20 18:47:21.187112: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (ip-172-31-65-42): /proc/driver/nvidia/version does not exist
+2021-03-20 18:47:21.187481: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2021-03-20 18:47:21.194246: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2300050000 Hz
+2021-03-20 18:47:21.194571: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x5626fca8e970 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-03-20 18:47:21.194604: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:25: The name tf.saved_model.tag_constants.SERVING is deprecated. Please use tf.saved_model.SERVING instead.
+
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:25: load (from tensorflow.python.saved_model.loader_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This function will only be available through the v1 compatibility library as tf.compat.v1.saved_model.loader.load or tf.compat.v1.saved_model.load. There will be a new function for importing SavedModels in Tensorflow 2.0.
+Traceback (most recent call last):
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_client.py", line 173, in init
+    driver = PccGymDriver(flow_id)
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_client.py", line 77, in __init__
+    self.agent = loaded_agent.LoadedModelAgent(MODEL_PATH)
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py", line 88, in __init__
+    self.model = LoadedModel(model_path)
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py", line 25, in __init__
+    [tf.saved_model.tag_constants.SERVING], self.model_path)
+  File "/home/ubuntu/environments/my_env/lib/python3.5/site-packages/tensorflow_core/python/util/deprecation.py", line 324, in new_func
+    return func(*args, **kwargs)
+  File "/home/ubuntu/environments/my_env/lib/python3.5/site-packages/tensorflow_core/python/saved_model/loader_impl.py", line 268, in load
+    loader = SavedModelLoader(export_dir)
+  File "/home/ubuntu/environments/my_env/lib/python3.5/site-packages/tensorflow_core/python/saved_model/loader_impl.py", line 284, in __init__
+    self._saved_model = parse_saved_model(export_dir)
+  File "/home/ubuntu/environments/my_env/lib/python3.5/site-packages/tensorflow_core/python/saved_model/loader_impl.py", line 83, in parse_saved_model
+    constants.SAVED_MODEL_FILENAME_PB))
+OSError: SavedModel file does not exist at: /home/ubuntu/models/original_six_loops//{saved_model.pbtxt|saved_model.pb}
+connect
+finished connect
+	Rate (Mbps)	RTT (ms)	Sent		Lost
+ERROR: Failed to call python get_rate() func
+Traceback (most recent call last):
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_client.py", line 169, in get_rate
+    driver = PccGymDriver.get_by_flow_id(flow_id)
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_client.py", line 130, in get_by_flow_id
+    return PccGymDriver.flow_lookup[flow_id]
+KeyError: 0
+(my_env) mininet> h2 ls  /home/ubuntu/models/
+bigger_one_loop  bigger_six_loops  original_unknown_loops
+(my_env) mininet> h2 ls  /home/ubuntu/models/original_unknown_models/
+ls: cannot access '/home/ubuntu/models/original_unknown_models/': No such file or directory
+(my_env) mininet> h2 ls  /home/ubuntu/models/original_unknown_loops/
+log.txt  saved_model.pbtxt  variables
+(my_env) mininetal - R /home/ubuntu/models/ls/
+ls: cannot access '-': No such file or directory
+ls: cannot access 'R': No such file or directory
+/home/ubuntu/models/:
+total 132
+drwxrwxr-x 10 ubuntu ubuntu  4096 Mar 20 18:51 .
+drwxr-xr-x 17 ubuntu ubuntu  4096 Mar 20 18:35 ..
+drwxr-xr-x  3 ubuntu ubuntu  4096 Mar 20 18:51 16x6layers
+drwxr-xr-x  3 ubuntu ubuntu  4096 Mar 20 18:51 32x4layers
+drwxr-xr-x  2 ubuntu ubuntu  4096 Mar 20 18:51 32x4layers_3rdrun
+drwxr-xr-x  3 ubuntu ubuntu  4096 Mar 20 18:51 8layers_tapering_run2
+drwxrwxr-x  3 ubuntu ubuntu  4096 Mar 20 00:07 bigger_one_loop
+drwxrwxr-x  3 ubuntu ubuntu  4096 Mar 20 00:07 bigger_six_loops
+-rw-r--r--  1 ubuntu ubuntu 91522 Mar 20 18:51 logs.txt
+drwxr-xr-x  3 ubuntu ubuntu  4096 Mar 20 18:51 original_six_loops
+drwxrwxr-x  3 ubuntu ubuntu  4096 Mar 20 00:07 original_unknown_loops
+(my_env) min./app/pccclient send 10.0.0.1 9000 --pcc-rate-control=python -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ --history-len=10 --pcc-utility-calc=linear --model-path=/home/ubuntu/models/original_six_loops/
+Starting sending rate = 2.24e+06
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:22: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2021-03-20 18:52:36.537802: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: :/home/ubuntu/PCC-Uspace/src/core/
+2021-03-20 18:52:36.537848: E tensorflow/stream_executor/cuda/cuda_driver.cc:318] failed call to cuInit: UNKNOWN ERROR (303)
+2021-03-20 18:52:36.537878: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (ip-172-31-65-42): /proc/driver/nvidia/version does not exist
+2021-03-20 18:52:36.538208: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2021-03-20 18:52:36.544965: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2300050000 Hz
+2021-03-20 18:52:36.545353: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x55a45264aa50 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-03-20 18:52:36.545382: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:25: The name tf.saved_model.tag_constants.SERVING is deprecated. Please use tf.saved_model.SERVING instead.
+
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:25: load (from tensorflow.python.saved_model.loader_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This function will only be available through the v1 compatibility library as tf.compat.v1.saved_model.loader.load or tf.compat.v1.saved_model.load. There will be a new function for importing SavedModels in Tensorflow 2.0.
+connect
+finished connect
+	Rate (Mbps)	RTT (ms)	Sent		Lost
+1	15.6121		0.976892		1408		15
+2	16.8399		1.1429		2854		17
+3	16.9831		1.18352		4313		18
+4	17.2008		1.20967		5790		18
+5	17.1037		0.871859		7259		18
+6	16.9755		0.999504		8717		18
+7	17.0675		1.25253		10183		18
+8	16.9514		0.981432		11639		18
+9	16.9567		0.980616		13095		18
+10	16.9797		0.919972		14553		18
+11	16.9046		0.9188		16005		18
+12	16.7056		0.989471		17440		18
+13	16.8577		0.967489		18888		18
+14	16.7184		1.01964		20324		18
+15	16.8865		0.955325		21774		18
+16	17.2127		1.14488		23252		18
+17	17.0847		0.878574		24719		18
+18	16.5838		0.969787		26143		18
+19	16.5677		0.987563		27566		18
+20	16.4967		0.984758		28983		18
+21	16.4385		1.01293		30395		18
+22	16.525		1.03598		31814		18
+23	16.298		0.878669		33214		18
+24	16.7283		1.03663		34651		18
+25	16.719		0.936703		36087		18
+26	16.7768		1.02387		37528		18
+27	16.451		1.00057		38941		18
+28	17.0878		1.00333		40409		18
+29	16.4742		1.02328		41824		18
+30	18.5015		1.0269		43413		18
+31	16.7413		1.14013		44851		18
+32	17.0903		1.04753		46319		18
+33	17.0791		1.02021		47786		18
+34	16.8004		1.15445		49229		18
+35	17.0555		0.918564		50694		18
+36	17.7069		1.14529		52215		18
+37	17.364		0.931194		53706		18
+38	17.1487		0.926599		55179		18
+39	17.0329		1.18746		56642		18
+40	17.398		1.02535		58136		18
+41	17.4511		1.18188		59635		18
+42	17.1732		1.04874		61110		18
+43	17.5199		0.994774		62615		18
+44	17.5036		1.07404		64118		18
+45	18.1846		1.03793		65680		18
+46	16.7888		0.95975		67122		18
+47	16.6715		1.03976		68554		18
+48	16.7892		1.04586		69996		18
+^Ce^?^?
+
+
+
+
+eci^?^?
+exit
+^C
+^J
+^Z
+[3]+  Stopped                 sudo ~/mininet/examples/sshd.py
+(my_env) ubuntu@ip-172-31-65-42:~/PCC-Uspace/src$ ps
+  PID TTY          TIME CMD
+29444 pts/0    00:00:00 bash
+31802 pts/0    00:00:00 ps
+(my_env) ubuntu@ip-172-31-65-42:~/PCC-Uspace/src$ sudo ~/mininet/examples/sshd.py

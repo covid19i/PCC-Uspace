@@ -46,7 +46,7 @@ written by
 #include "udt.h"
 #include "packet.h"
 
-
+//https://stackoverflow.com/questions/24959249/class-keyword-followed-by-two-words-cpp
 class UDT_API CCC
 {
 friend class CUDT;
