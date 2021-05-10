@@ -1,12 +1,37 @@
 #!/usr/bin/python
 
+import sys; print(sys.executable)
+
 from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
-from common.simple_arg_parse import arg_or_default
+#from common.simple_arg_parse import arg_or_default
 import pprint
 from time import sleep
+import random
+import numpy as np
+
+import sys
+
+_arg_dict = {}
+for arg in sys.argv:
+    eq_pos = arg.find('=')
+    if eq_pos >= 0:
+        _arg_dict[arg[:eq_pos]] = arg[eq_pos + 1:]
+    else:
+        _arg_dict[arg] = True
+
+def arg_or_default(arg, default=None):
+    if arg in _arg_dict.keys():
+        result = _arg_dict[arg]
+        if isinstance(default, int):
+            return int(result)
+        if isinstance(default, float):
+            return float(result)
+        return result
+    else:
+        return default
 
 class SingleSwitchTopo( Topo ):
     "Single switch connected to n hosts."
@@ -41,8 +66,8 @@ def read_model_names(model_names, model_names_path):
             model_names.append(model_name)
     model_names_file.close()
 
-model_names_path = arg_or_default("--model_names", default="original_six_loops")
-model_path = arg_or_default("--models_at", default="/home/ubuntu/models/")
+model_names_path = arg_or_default("--model_names")
+model_folder_path = arg_or_default("--models_at", default="/home/ubuntu/models/")
 model_names = []
 read_model_names(model_names, model_names_path)
 pprint.pprint(model_names)
@@ -107,7 +132,9 @@ def test_RL_models():
     #KILL lingering processes (defunct or running)
     #sudo mn -c??????
     
-    
+
+#DOn't FORGET
+#sudo PYTHONPATH=/usr/local/lib/python2.7/dist-packages:$PYTHONPATH python3 util/compare_models.py     
 test_RL_models()
 
 def perfTest():
