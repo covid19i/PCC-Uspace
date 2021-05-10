@@ -22,7 +22,7 @@ class SingleSwitchTopo( Topo ):
             
 class SingleSwitchTopoWithLinkConfig( Topo ):
     "Single switch connected to n hosts with a link of given properties."
-    def build( self, n=2, net_config ):
+    def build( self, n=2, net_config =dict(bw=1, delay='1s', loss=1, max_queue_size=100, use_htb=True )):
         switch = self.addSwitch( 's1' )
         for h in range(n):
             # Each host gets 50%/n of system CPU
@@ -57,7 +57,7 @@ class SpawnMininet():
         
     def create_new_net(self):
         net_config = self.new_net_configuration()
-        topo = SingleSwitchTopoWithLinkConfig( n=4, net_config )
+        topo = SingleSwitchTopoWithLinkConfig(4, net_config )
         net = Mininet( topo=topo)
         #,               host=CPULimitedHost, link=TCLink )
         self.net = net
@@ -104,6 +104,9 @@ def test_RL_models():
     testbed.create_new_net()
     testbed.run_experiment()
     testbed.net.stop()
+    #KILL lingering processes (defunct or running)
+    #sudo mn -c??????
+    
     
 test_RL_models()
 
