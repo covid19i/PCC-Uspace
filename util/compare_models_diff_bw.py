@@ -9,8 +9,6 @@ from mininet.log import setLogLevel
 #from common.simple_arg_parse import arg_or_default
 import pprint
 from time import sleep
-import random
-import numpy as np
 import sys, os
 
 _arg_dict = {}
@@ -53,16 +51,14 @@ class SingleSwitchTopo( Topo ):
             
 class SingleSwitchTopoWithLinkConfig( Topo ):
     "Single switch connected to n hosts with a link of given properties."
-    def build( self, n=2, net_config =dict(bw=1, lat=1, loss=0.01, queue=100, use_htb=True )):
+    def build( self, n=2, net_config =dict(bw=1, delay="1s", loss=1, max_queue_size=100, use_htb=True )):
         switch = self.addSwitch( 's1' )
         for h in range(n):
             # Each host gets 50%/n of system CPU
             host = self.addHost( 'h%s' % (h + 1), cpu=.5/n )
             #The parameter bw is expressed as a number in Mbit; delay is expressed as a string with units in place (e.g. '5ms', '100us', '1s'); loss is expressed as a percentage (between 0 and 100); and max_queue_size is expressed in packets.
             # 10 Mbps, 5ms delay, 2% loss, 1000 packet queue
-            linkopts = dict(bw=net_config["bw"], delay=str(net_config["lat"])+'s', loss=net_config["loss"]*100,
-                              max_queue_size=net_config["queue"], use_htb=True )
-            self.addLink( host, switch, **linkopts)
+            self.addLink( host, switch, **net_config)
 
 def read_model_names(model_names, model_names_path):
     with open(model_names_path, 'r') as model_names_file:
@@ -83,8 +79,8 @@ def read_net_configs(net_configs, net_configs_path):
     with open(net_configs_path, 'r') as net_configs_file:
         for line in net_configs_file:
             bw, latency, loss, max_queue_size = line.split("\t")
-            linkopts = dict(bw=float(bw), lat=str(latency), loss=float(loss),
-                              queue=int(max_queue_size), use_htb=True )
+            linkopts = dict(bw=float(bw), delay=str(latency), loss=float(loss),
+                              max_queue_size=int(max_queue_size), use_htb=True )
             net_configs.append(linkopts)
     net_configs_file.close()
 
@@ -102,11 +98,8 @@ class SpawnMininet():
         self.min_loss, self.max_loss = (0.0, 0.05)
         self.net = None
         
-    def create_new_net(self, config=None):
-        if(config == None):
-            net_config = self.new_net_configuration()
-        else:
-            net_config = config
+    def create_new_net(self, config):
+        net_config = config
         topo = SingleSwitchTopoWithLinkConfig(4, net_config )
         net = Mininet( topo=topo)
         #,               host=CPULimitedHost, link=TCLink )
@@ -126,21 +119,12 @@ class SpawnMininet():
         #self.run_dur = 3 * lat
         print("New net created and tested.")
     
-    def new_net_configuration(self):
-        net_config = {}
-        net_config["bw"]    = random.uniform(self.min_bw, self.max_bw)
-        net_config["lat"]   = random.uniform(self.min_lat, self.max_lat)
-        net_config["queue"] = 1 + int(np.exp(random.uniform(self.min_queue, self.max_queue)))
-        net_config["loss"]  = random.uniform(self.min_loss, self.max_loss)
-        pprint.pprint(net_config)
-        return net_config
-    
     def run_experiment(self):
         print( "Starting test..." )
-        output_folder = "/home/ubuntu/mininet_logs/"
+        output_folder = arg_or_default("--output", default="/home/ubuntu/mininet_logs/")
         for config in net_configs:
             self.create_new_net(config)
-            config_name = "bw_"+str(config["bw"])+"_latency_"+config["lat"]+"_loss_"+str(config["loss"])+"_queue_"+str(config["queue"])
+            config_name = "bw_"+str(config["bw"])+"_latency_"+config["delay"]+"_loss_"+str(config["loss"])+"_queue_"+str(config["max_queue_size"])
             print(config_name)
             print("Testing with configuration: " + config_name)
             create_folder_if_not(output_folder +config_name)
@@ -165,14 +149,15 @@ class SpawnMininet():
                 print("Testing with model at " + model_path)
                 print("Output at " + log_file_path)
                 #h2.cmd('./app/pccclient send 10.0.0.1 9000 > /home/ubuntu/mininet_logs/h2_LSTM_run6.out &')
+                h2.cmd("rm log_file_path")
                 pid = h2.cmd("./app/pccclient send 10.0.0.1 9000 --pcc-rate-control=python" \
                        " -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ " \
                        "--history-len=10 --pcc-utility-calc=linear " \
                        "--model-path=" + model_path +
-                       " >> " + log_file_path + " &")
+                       " > " + log_file_path + " &")
                 #/home/ubuntu/models/LSTM_run6_1600x410_2048_1_lstm_dim_128
                 if('LSTM' in model_name):
-                    sleep(110 + 30)
+                    sleep(110 + 90)
                 else:
                     sleep(90)
                 h2.cmd('kill -9 ' + str(pid))
