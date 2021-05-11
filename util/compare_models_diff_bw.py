@@ -150,18 +150,18 @@ class SpawnMininet():
                 print("Output at " + log_file_path)
                 #h2.cmd('./app/pccclient send 10.0.0.1 9000 > /home/ubuntu/mininet_logs/h2_LSTM_run6.out &')
                 h2.cmd("rm log_file_path")
-                pid = h2.cmd("./app/pccclient send 10.0.0.1 9000 --pcc-rate-control=python" \
+                pid = h2.cmd("./app/pccclient send 10.0.0.1 9000 --model-path=" + model_path + "--pcc-rate-control=python" \
                        " -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ " \
                        "--history-len=10 --pcc-utility-calc=linear " \
-                       "--model-path=" + model_path +
                        " > " + log_file_path + " &")
                 #/home/ubuntu/models/LSTM_run6_1600x410_2048_1_lstm_dim_128
                 if('LSTM' in model_name):
-                    sleep(110 + 90)
+                    sleep(110 + 60)
                 else:
-                    sleep(90)
-                h2.cmd('kill -9 ' + str(pid))
-                #h2.cmd('kill %\./app/pccclient')
+                    sleep(60)
+                #h2.cmd('kill -9 ' + str(pid))
+                h2.cmd('kill %\./app/pccclient')
+                h2.cmd('kill %pccclient')
                 #sleep(1)
                 #h2.cmd('ps >> /home/ubuntu/mininet_logs/h2_LSTM_run6.out')
                 #h1.cmd('kill %\./app/pccserver')

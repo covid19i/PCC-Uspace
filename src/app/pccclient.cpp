@@ -6,6 +6,7 @@
 #include "../core/udt.h"
 #include "../core/options.h"
 #include <signal.h>
+#include <time.h>
 
 #define DATA_BATCH_SIZE 1000000
 
@@ -78,6 +79,10 @@ int main(int argc, char* argv[]) {
     char* data = new char[batch_size];
     bzero(data, batch_size);
 
+    time_t timer, init_time;
+    time(&init_time);
+    double seconds;
+    time(&timer);  /* get current time; same as: timer = time(NULL)  */
     while (!stop) {
         int cur_size = 0;
         int this_call_size = 0;
@@ -93,8 +98,12 @@ int main(int argc, char* argv[]) {
                 cout << "send/recv: " << UDT::getlasterror().getErrorMessage() << std::endl;
                 break;
             }
-            
             cur_size += this_call_size;
+        }
+        time(&timer);
+        seconds = difftime(timer,init_time);
+        if(seconds > 300){
+        	stop = true;
         }
     }
 
