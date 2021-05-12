@@ -10,6 +10,7 @@ from mininet.log import setLogLevel
 import pprint
 from time import sleep
 import sys, os
+import random
 
 _arg_dict = {}
 for arg in sys.argv:
@@ -100,18 +101,19 @@ class SpawnMininet():
         
     def create_new_net(self, config):
         net_config = config
+        pprint.pprint(net_config, stream, indent, width, depth)
         topo = SingleSwitchTopoWithLinkConfig(4, net_config )
         net = Mininet( topo=topo)
         #,               host=CPULimitedHost, link=TCLink )
         self.net = net
         net.start()
-        print( "Dumping host connections" )
-        dumpNodeConnections( net.hosts )
-        print( "Testing network connectivity" )
-        net.pingAll()
+        #print( "New net created. Dumping host connections" )
+        #dumpNodeConnections( net.hosts )
+        #print( "Testing network connectivity" )
+        #net.pingAll()
         #print( "Testing bandwidth between h1 and h4" )
-        #h1, h4 = net.get( 'h1', 'h4' )
-        #net.iperf( (h1, h4) )
+        h1, h2 = net.get( 'h1', 'h2' )
+        net.iperf( (h1, h2) )
         #CHECK WHY THIS RETURNS 24.1Gbits/s when bw=950 say
         
         #self.links = [Link(bw, lat, queue, loss), Link(bw, lat, queue, loss)]
@@ -122,63 +124,92 @@ class SpawnMininet():
     def run_experiment(self):
         print( "Starting test..." )
         output_folder = arg_or_default("--output", default="/home/ubuntu/mininet_logs/")
+        #random.shuffle(net_configs)
         for config in net_configs:
-            self.create_new_net(config)
             config_name = "bw_"+str(config["bw"])+"_latency_"+config["delay"]+"_loss_"+str(config["loss"])+"_queue_"+str(config["max_queue_size"])
-            print(config_name)
+            #print(config_name)
             print("Testing with configuration: " + config_name)
             create_folder_if_not(output_folder +config_name)
-            
-            h1, h2 = self.net.get( 'h1', 'h2' )  
-            #result = h1.cmd('ifconfig')
-            #print( result )
-            h1.cmd('source /home/ubuntu/environments/my_env/bin/activate')
-            h1.cmd('cd /home/ubuntu/PCC-Uspace/src')
-            h1.cmd('export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/')
-            #h1.cmd('./app/pccserver recv 9000 > /home/ubuntu/mininet_logs/h1_LSTM_run6.out &')
-            sender_pid = h1.cmd('./app/pccserver recv 9000 > ' + output_folder + config_name +  '/receiver.txt &')
-            
-            h2.cmd('source /home/ubuntu/environments/my_env/bin/activate')
-            h2.cmd('cd /home/ubuntu/PCC-Uspace/src')
-            h2.cmd('export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/')
+            create_folder_if_not(output_folder +config_name + '/receiver/')
             
             #RANDOMIZATION OF THE ORDER OF MODELS
             for model_name in model_names:
-                model_path = str(model_folder_path) + str(model_name)
-                log_file_path = output_folder +config_name + "/"+ str(model_name) + ".txt"
-                print("Testing with model at " + model_path)
-                print("Output at " + log_file_path)
-                #h2.cmd('./app/pccclient send 10.0.0.1 9000 > /home/ubuntu/mininet_logs/h2_LSTM_run6.out &')
-                h2.cmd("rm log_file_path")
-                pid = h2.cmd("./app/pccclient send 10.0.0.1 9000 --model-path=" + model_path + "--pcc-rate-control=python" \
-                       " -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ " \
-                       "--history-len=10 --pcc-utility-calc=linear " \
-                       " > " + log_file_path + " &")
-                #/home/ubuntu/models/LSTM_run6_1600x410_2048_1_lstm_dim_128
-                if('LSTM' in model_name):
-                    sleep(110 + 60)
+                self.create_new_net(config)
+                #print("Links from self.net.topo.links():")
+                #pprint.pprint(self.net.topo.links(withKeys=True, withInfo=True))            
+                h1, h2 = self.net.get( 'h1', 'h2' )  
+                #result = h1.cmd('ifconfig')
+                #print( result )
+                h1.cmd('source /home/ubuntu/environments/my_env/bin/activate')
+                h1.cmd('cd /home/ubuntu/PCC-Uspace/src')
+                h1.cmd('export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/')
+                #h1.cmd('./app/pccserver recv 9000 > /home/ubuntu/mininet_logs/h1_LSTM_run6.out &')
+                
+                h2.cmd('source /home/ubuntu/environments/my_env/bin/activate')
+                h2.cmd('cd /home/ubuntu/PCC-Uspace/src')
+                h2.cmd('export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/')
+                
+                if(model_name in ['Copa', 'Vivace', ]):
+                    pass
+                elif('Vivace' in model_name):
+                    pass
                 else:
-                    sleep(60)
-                #h2.cmd('kill -9 ' + str(pid))
+                    model_path = str(model_folder_path) + str(model_name)
+                    log_file_path = output_folder +config_name + "/"+ str(model_name) + ".txt"
+                    print("Testing with model at " + model_path)
+                    print("Client Output at " + log_file_path)
+                    
+                    server_log_file_path = output_folder +config_name + "/receiver/"+ str(model_name) + ".txt"
+                    print("Server Output at " + server_log_file_path)
+                    sender_pid = h1.cmd('./app/pccserver recv 9000 > ' + server_log_file_path + ' &')
+                    print("PCC Server started with PID: " + str(sender_pid) + ".")
+                    #h2.cmd('./app/pccclient send 10.0.0.1 9000 > /home/ubuntu/mininet_logs/h2_LSTM_run6.out &')
+                    h2.cmd("rm log_file_path")
+                    pid = h2.cmd("./app/pccclient send 10.0.0.1 9000 --model-path=" + model_path + "--pcc-rate-control=python" \
+                           " -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ " \
+                           "--history-len=10 --pcc-utility-calc=linear " \
+                           " > " + log_file_path + " &")
+                    print("PCC Client started with PID: " + str(pid) + ".")
+                    #/home/ubuntu/models/LSTM_run6_1600x410_2048_1_lstm_dim_128
+                    if('LSTM' in model_name):
+                        if('64' in model_name):
+                            sleep(150 + 60)
+                        elif('128' in model_name):
+                            sleep(250 + 60)
+                        elif('256' in model_name):
+                            sleep(350 + 60)
+                        elif('512' in model_name):
+                            sleep(400 + 60)
+                        else:
+                            sleep(150+60)
+                    else:
+                        sleep(60)
+                        
+                    
+                h2.cmd('kill -9 ' + str(pid))
                 h2.cmd('kill %\./app/pccclient')
                 h2.cmd('kill %pccclient')
-                #sleep(1)
                 #h2.cmd('ps >> /home/ubuntu/mininet_logs/h2_LSTM_run6.out')
-                #h1.cmd('kill %\./app/pccserver')
-                #sleep(1)
-                #h1.cmd('ps >> /home/ubuntu/mininet_logs/h1_LSTM_run6.out')
-                #sleep(1)
+                h1.cmd('kill %\./app/pccserver')
+                h1.cmd('kill %pccserver')
+                h1.cmd('kill -9 ' + str(sender_pid))
+                    
+                #The axe
+                os.system('sudo mn -c')
+                wait_period = 20
+                print("Waiting for " + str(wait_period) + " seconds for Mininet processes to die...")
+                sleep(wait_period)#wait for processes to get killed
                 
-                
-                print( "Reading output from sender" )
+                print( "Reading first 7 lines of output from sender" )
                 f = open(log_file_path)
                 lineno = 1
                 for line in f.readlines():
                     print( "%d: %s" % ( lineno, line.strip() ) )
                     lineno += 1
+                    if lineno > 7:
+                        break
                 f.close()
             
-            h1.cmd('kill -9 ' + str(sender_pid))
             #pid = int( h1.cmd('echo $!') )
             #h1.cmd('wait', pid)
         print( "Stopping test..." )

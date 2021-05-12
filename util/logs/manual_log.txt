@@ -1,0 +1,402 @@
+ubuntu@ip-172-31-76-14:~/PCC-Uspace$ sudo mn -c
+*** Removing excess controllers/ofprotocols/ofdatapaths/pings/noxes
+killall controller ofprotocol ofdatapath ping nox_corelt-nox_core ovs-openflowd ovs-controllerovs-testcontroller udpbwtest mnexec ivs ryu-manager 2> /dev/null
+killall -9 controller ofprotocol ofdatapath ping nox_corelt-nox_core ovs-openflowd ovs-controllerovs-testcontroller udpbwtest mnexec ivs ryu-manager 2> /dev/null
+pkill -9 -f "sudo mnexec"
+*** Removing junk from /tmp
+rm -f /tmp/vconn* /tmp/vlogs* /tmp/*.out /tmp/*.log
+*** Removing old X11 tunnels
+*** Removing excess kernel datapaths
+ps ax | egrep -o 'dp[0-9]+' | sed 's/dp/nl:/'
+***  Removing OVS datapaths
+ovs-vsctl --timeout=1 list-br
+ovs-vsctl --if-exists del-br s1
+ovs-vsctl --timeout=1 list-br
+*** Removing all links of the pattern foo-ethX
+ip link show | egrep -o '([-_.[:alnum:]]+-eth[[:digit:]]+)'
+( ip link del s1-eth1;ip link del s1-eth2 ) 2> /dev/null
+ip link show
+*** Killing stale mininet node processes
+pkill -9 -f mininet:
+*** Shutting down stale tunnels
+pkill -9 -f Tunnel=Ethernet
+pkill -9 -f .ssh/mn
+rm -f ~/.ssh/mn/*
+*** Cleanup complete.
+
+
+
+
+
+ubuntu@ip-172-31-76-14:~/PCC-Uspace$ sudo mn --link tc,bw=10,delay=10ms
+*** Creating network
+*** Adding controller
+*** Adding hosts:
+h1 h2 
+*** Adding switches:
+s1 
+*** Adding links:
+(10.00Mbit 10ms delay) (10.00Mbit 10ms delay) (h1, s1) (10.00Mbit 10ms delay) (10.00Mbit 10ms delay) (h2, s1) 
+*** Configuring hosts
+h1 h2 
+*** Starting controller
+c0 
+*** Starting 1 switches
+s1 ...(10.00Mbit 10ms delay) (10.00Mbit 10ms delay) 
+*** Starting CLI:
+
+mininet> h1 cd /home/ubuntu/PCC-Uspace/src
+mininet> h2 cd /home/ubuntu/PCC-Uspace/src
+mininet> h1 source /home/ubuntu/environments/my_env/bin/activate
+(my_env) mininet> h2 source /home/ubuntu/environments/my_env/bin/activate
+(my_env) mininet> h1 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/
+(my_env) mininet> h2 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/
+(my_env) mininet> h1 ./app/pccserver recv 9000 &
+(my_env) mininet> h2 ./app/pccclient send h1 9000 --pcc-rate-control=python -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ --history-len=utility-calc=linear --model-path=/home/ubuntu/models/8layers_60loops &
+(my_env) mininet> h2 ps
+Starting sending rate = 2.24e+06
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:23: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2021-05-12 12:32:10.288667: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: :/home/ubuntu/PCC-Uspace/src/core/
+2021-05-12 12:32:10.288704: E tensorflow/stream_executor/cuda/cuda_driver.cc:318] failed call to cuInit: UNKNOWN ERROR (303)
+2021-05-12 12:32:10.288726: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (ip-172-31-76-14): /proc/driver/nvidia/version does not exist
+2021-05-12 12:32:10.288987: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2021-05-12 12:32:10.295284: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2400060000 Hz
+2021-05-12 12:32:10.295473: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x561a8dc96b80 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-05-12 12:32:10.295503: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+Model path set to /home/ubuntu/models/8layers_60loops
+Now, attempting to load the model...
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:28: The name tf.saved_model.tag_constants.SERVING is deprecated. Please use tf.saved_model.SERVING instead.
+
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:28: load (from tensorflow.python.saved_model.loader_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This function will only be available through the v1 compatibility library as tf.compat.v1.saved_model.loader.load or tf.compat.v1.saved_model.load. There will be a new function for importing SavedModels in Tensorflow 2.0.
+
+connect
+finished connect
+	Rate (Mbps)	RTT (ms)	Sent		Lost
+1	3.31014		44.8058		329		0
+2	0.570637		40.6084		378		0
+3	0.477477		40.5314		419		0
+4	0.489125		40.5115		461		0
+5	0.489122		40.5981		503		0
+6	0.477469		40.5553		544		0
+7	0.489125		40.5287		586		0
+8	0.489113		40.6205		628		0
+9	0.477466		40.5616		669		0
+10	0.489111		40.557		711		0
+11	0.48912		40.5881		753		0
+12	0.477465		40.5737		794		0
+13	0.489119		40.5076		836		0
+14	0.48911		40.6035		878		0
+15	0.477466		40.5321		919		0
+16	0.489111		40.5009		961		0
+17	0.48912		40.6306		1003		0
+18	0.48912		40.5459		1045		0
+19	0.477456		40.5009		1086		0
+20	0.489112		40.5917		1128		0
+21	0.489112		40.5446		1170		0
+22	0.477515		40.6755		1211		0
+23	0.489119		40.6109		1253		0
+24	0.48912		40.528		1295		0
+25	0.47747		40.6158		1336		0
+26	0.489119		40.6145		1378		0
+27	0.489125		40.5582		1420		0
+28	0.47747		40.6596		1461		0
+
+
+
+(my_env) mininet> h2 ./app/pccclient send h1 9000 --pcc-rate-control=python -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ --history-len=utility-calc=linear --model-path=/home/ubuntu/models/8layers_tapering_run8 &
+(my_env) mininet> h2 ps
+Starting sending rate = 2.24e+06
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:23: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2021-05-12 12:33:07.730265: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: :/home/ubuntu/PCC-Uspace/src/core/
+2021-05-12 12:33:07.730302: E tensorflow/stream_executor/cuda/cuda_driver.cc:318] failed call to cuInit: UNKNOWN ERROR (303)
+2021-05-12 12:33:07.730327: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (ip-172-31-76-14): /proc/driver/nvidia/version does not exist
+2021-05-12 12:33:07.730591: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2021-05-12 12:33:07.736688: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2400060000 Hz
+2021-05-12 12:33:07.736886: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x558001777470 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-05-12 12:33:07.736918: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+Model path set to /home/ubuntu/models/8layers_tapering_run8
+Now, attempting to load the model...
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:28: The name tf.saved_model.tag_constants.SERVING is deprecated. Please use tf.saved_model.SERVING instead.
+
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:28: load (from tensorflow.python.saved_model.loader_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This function will only be available through the v1 compatibility library as tf.compat.v1.saved_model.loader.load or tf.compat.v1.saved_model.load. There will be a new function for importing SavedModels in Tensorflow 2.0.
+
+connect
+finished connect
+	Rate (Mbps)	RTT (ms)	Sent		Lost
+1	6.45812		40.8291		623		0
+2	10.8419		159.288		1554		0
+3	11.4941		284.993		2541		0
+4	12.0185		502.221		3573		0
+5	11.0053		670.51		4518		0
+6	10.3647		778.827		5408		0
+7	10.2483		844.747		6288		0
+8	10.6093		908.473		7199		0
+9	11.0633		1002.52		8149		0
+10	11.0518		1130.81		9098		0
+11	9.29331		1240.75		9896		0
+12	7.87251		1221.86		10572		15
+13	6.54491		1014.81		11134		64
+14	6.17225		514.345		11664		64
+15	7.9541		153.732		12347		64
+16	8.72344		103.032		13096		64
+17	2.55037		40.6104		13315		64
+18	0.640512		40.5877		13370		64
+19	0.489107		40.5383		13412		64
+20	0.489115		40.6192		13454		64
+21	0.477476		40.558		13495		64
+22	0.489112		40.5037		13537		64
+23	0.489116		40.6172		13579		64
+24	0.477466		40.5578		13620		64
+25	0.489124		40.5369		13662		64
+26	0.489122		40.6172		13704		64
+27	0.477472		40.5564		13745		64
+28	0.489121		40.5046		13787		64
+29	0.489148		40.6111		13829		64
+30	0.477465		40.5678		13870		64
+31	0.489112		40.514		13912		64
+32	0.489116		40.6346		13954		64
+33	0.477462		40.5456		13995		64
+34	0.48912		40.5362		14037		64
+35	0.489109		40.624		14079		64
+36	0.477471		40.5612		14120		64
+37	0.489111		40.5438		14162		64
+38	0.489114		40.6149		14204		64
+39	0.477465		40.556		14245		64
+40	0.489112		40.5188		14287		64
+41	0.489117		40.6261		14329		64
+42	0.477452		40.578		14370		64
+43	0.48913		40.5359		14412		64
+44	0.48912		40.5971		14454		64
+45	0.48912		40.5512		14496		64
+46	0.477474		40.645		14537		64
+47	0.489113		40.6382		14579		64
+48	0.48911		40.5734		14621		64
+49	0.477467		40.6522		14662		64
+50	0.489113		40.6207		14704		64
+51	0.489111		40.5733		14746		64
+52	0.47746		40.704		14787		64
+
+
+
+(my_env) h2 ./app/pccclient send h1 9000 Copa &
+(my_env) mininet> h2 ps
+Starting sending rate = 2.24e+06
+connect
+finished connect
+	Rate (Mbps)	RTT (ms)	Sent		Lost
+RS NULL
+1	1.93424		40.3141		187		0
+2	2.38736		40.3378		392		0
+3	2.81825		40.3268		634		0
+4	3.05111		40.3402		896		0
+5	2.79493		40.3754		1136		0
+6	2.81822		40.3125		1378		0
+7	2.79496		40.3134		1618		0
+8	2.79489		40.3188		1858		0
+9	2.69014		40.3206		2089		0
+10	2.72508		40.3189		2323		0
+11	2.7127		40.3591		2556		0
+12	2.73669		40.3265		2791		0
+13	2.76		40.3396		3028		0
+14	2.80654		40.3296		3269		0
+15	2.8648		40.3319		3515		0
+16	2.67848		40.3268		3745		0
+17	2.65519		40.319		3973		0
+18	2.58535		40.3238		4195		0
+19	2.62028		40.3166		4420		0
+20	2.59702		40.3318		4643		0
+21	2.62029		40.3441		4868		0
+22	2.55038		40.3291		5087		0
+23	2.49219		40.3127		5301		0
+24	2.50383		40.3185		5516		0
+25	2.59699		40.3236		5739		0
+26	2.57382		40.3615		5960		0
+27	2.49218		40.3519		6174		0
+28	2.48055		40.3645		6387		0
+29	2.50379		40.3897		6602		0
+30	2.44559		40.3542		6812		0
+31	2.45719		40.3499		7023		0
+32	2.45725		40.3571		7234		0
+33	2.46888		40.3456		7446		0
+34	2.42231		40.322		7654		0
+35	2.42228		40.358		7862		0
+36	2.44556		40.3667		8072		0
+37	2.53878		40.3542		8290		0
+38	2.46907		40.3551		8502		0
+39	2.31748		40.3627		8701		0
+40	2.43395		40.3426		8910		0
+41	2.58535		40.3239		9132		0
+42	2.57371		40.3611		9353		0
+43	2.57372		40.353		9574		0
+44	2.562		40.3582		9794		0
+45	2.59718		40.3643		10017		0
+
+
+
+
+(my_env) mininet> h2 ./app/pccclient send h1 9000 Vivace &
+(my_env) mininet> h2 ps
+Starting sending rate = 2.24e+06
+connect
+finished connect
+	Rate (Mbps)	RTT (ms)	Sent		Lost
+RS NULL
+1	1.935		40.3241		187		0
+2	2.38736		40.3122		392		0
+3	2.39897		40.3262		598		0
+4	2.45718		40.322		809		0
+5	2.3524		40.2228		1011		0
+6	2.38735		40.3183		1216		0
+7	2.31745		40.4285		1415		0
+8	2.27088		40.3632		1610		0
+9	2.28254		40.3852		1806		0
+10	2.27091		40.3283		2001		0
+11	2.23593		40.3292		2193		0
+12	2.24762		40.3216		2386		0
+13	2.24763		40.3241		2579		0
+14	2.29417		40.1931		2776		0
+15	2.25926		40.3396		2970		0
+16	2.21266		40.3526		3160		0
+17	2.2129		40.3267		3350		0
+18	2.21264		40.3575		3540		0
+19	2.20103		40.3521		3729		0
+20	2.17775		40.3483		3916		0
+21	2.21269		40.3581		4106		0
+22	2.22429		40.3515		4297		0
+23	2.21269		40.352		4487		0
+24	2.20101		40.354		4676		0
+25	2.22428		40.3581		4867		0
+26	2.21263		40.3451		5057		0
+27	2.25922		40.3417		5251		0
+28	2.23598		40.3379		5443		0
+29	2.29415		40.3285		5640		0
+30	2.27087		40.398		5835		0
+31	2.28254		40.3923		6031		0
+32	2.3058		40.3404		6229		0
+33	2.31744		40.3556		6428		0
+34	2.32914		40.3577		6628		0
+35	2.35242		40.3591		6830		0
+36	2.37572		40.3512		7034		0
+37	2.38734		40.3428		7239		0
+38	2.37571		40.3427		7443		0
+39	2.41066		40.364		7650		0
+40	2.41062		40.3293		7857		0
+41	2.38732		40.3391		8062		0
+42	2.36417		40.3452		8265		0
+43	2.2824		40.4237		8461		0
+44	2.30585		40.3435		8659		0
+45	2.31746		40.3814		8858		0
+46	2.3175		40.4066		9057		0
+47	2.38733		40.3589		9262		0
+48	2.39898		40.3599		9468		0
+49	2.41057		40.3261		9675		0
+50	2.399		40.3293		9881		0
+51	2.37573		40.3467		10085		0
+52	2.44561		40.3502		10295		0
+53	2.59701		40.3607		10518		0
+54	2.56204		40.3259		10738		0
+55	2.53878		40.3616		10956		0
+56	2.55042		40.3566		11175		0
+
+
+
+
+(my_env) h2 ./app/pccclient send h1 9000 --pcc-rate-control=python -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ --history-len=10 --pcc-utility-calc=linear --model-path=/home/ubuntu/models/original_six_loops/ &
+(my_env) mininet> h2 ps
+Starting sending rate = 2.24e+06
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:23: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2021-05-12 12:38:16.726805: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: :/home/ubuntu/PCC-Uspace/src/core/
+2021-05-12 12:38:16.726848: E tensorflow/stream_executor/cuda/cuda_driver.cc:318] failed call to cuInit: UNKNOWN ERROR (303)
+2021-05-12 12:38:16.726868: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (ip-172-31-76-14): /proc/driver/nvidia/version does not exist
+2021-05-12 12:38:16.727127: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2021-05-12 12:38:16.733233: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2400060000 Hz
+2021-05-12 12:38:16.733407: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x55bf5fec40b0 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-05-12 12:38:16.733436: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+Model path set to /home/ubuntu/models/original_six_loops/
+Now, attempting to load the model...
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:28: The name tf.saved_model.tag_constants.SERVING is deprecated. Please use tf.saved_model.SERVING instead.
+
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:28: load (from tensorflow.python.saved_model.loader_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This function will only be available through the v1 compatibility library as tf.compat.v1.saved_model.loader.load or tf.compat.v1.saved_model.load. There will be a new function for importing SavedModels in Tensorflow 2.0.
+
+connect
+finished connect
+	Rate (Mbps)	RTT (ms)	Sent		Lost
+1	8.74584		118.428		845		0
+2	11.4009		271.883		1825		0
+3	11.343		423.551		2799		0
+4	11.4827		580.501		3785		0
+5	11.5177		744.326		4774		0
+6	11.5178		909.691		5763		0
+7	11.494		1074.5		6750		0
+8	10.5288		1237.68		7654		0
+9	8.03557		1240.74		8344		0
+10	7.01081		1100.12		8946		112
+11	6.47572		714.497		9502		117
+12	9.03708		372.608		10278		117
+13	17.4453		596.192		11776		117
+14	25.7958		1095.19		13991		117
+15	27.4017		1241.29		16344		117
+16	22.4184		1241.29		18269		785
+17	19.6227		1240.6		19954		2312
+18	16.7118		1240.77		21389		3652
+19	14.6505		1240.92		22647		4597
+20	13.2996		1240.6		23789		5325
+21	11.809		1240.6		24803		5832
+22	10.6558		1240.79		25718		6201
+23	9.64245		1240.42		26546		6450
+24	8.64077		1235.43		27288		6585
+25	7.77953		1144.28		27956		6629
+26	7.2439		916.419		28578		6629
+27	9.35145		630.622		29381		6629
+28	13.8233		724.879		30568		6629
+29	20.0891		1054.65		32293		6629
+30	21.3585		1240.99		34127		6629
+
+
+
+(my_env) mininet> h2 ./app/pccclient send h1 9000 --pcc-rate-control=python -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ --history-len=utility-calc=linear --model-path=/home/ubuntu/models/16x6layers_run3/
+Starting sending rate = 2.24e+06
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:23: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2021-05-12 12:41:31.305149: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: :/home/ubuntu/PCC-Uspace/src/core/
+2021-05-12 12:41:31.305186: E tensorflow/stream_executor/cuda/cuda_driver.cc:318] failed call to cuInit: UNKNOWN ERROR (303)
+2021-05-12 12:41:31.305214: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (ip-172-31-76-14): /proc/driver/nvidia/version does not exist
+2021-05-12 12:41:31.305476: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2021-05-12 12:41:31.311603: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2400060000 Hz
+2021-05-12 12:41:31.311880: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x557fe36cef70 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-05-12 12:41:31.311906: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+Model path set to /home/ubuntu/models/16x6layers_run3/
+Now, attempting to load the model...
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:28: The name tf.saved_model.tag_constants.SERVING is deprecated. Please use tf.saved_model.SERVING instead.
+
+WARNING:tensorflow:From /home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py:28: load (from tensorflow.python.saved_model.loader_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This function will only be available through the v1 compatibility library as tf.compat.v1.saved_model.loader.load or tf.compat.v1.saved_model.load. There will be a new function for importing SavedModels in Tensorflow 2.0.
+
+connect
+connect: Connection setup failure: connection time out.
+
+
+
+
+
+(my_env) mininet> exit
+*** Stopping 1 controllers
+c0 
+*** Stopping 2 links
+..
+*** Stopping 1 switches
+s1 
+*** Stopping 2 hosts
+h1 h2 
+*** Done
+completed in 665.022 seconds
