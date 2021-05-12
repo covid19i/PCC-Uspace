@@ -174,7 +174,7 @@ struct CPerfMon
    int pktRecvACKTotal;                 // total number of received ACK packets
    int pktSentNAKTotal;                 // total number of sent NAK packets
    int pktRecvNAKTotal;                 // total number of received NAK packets
-   int64_t usSndDurationTotal;		// total time duration when UDT is sending data (idle time exclusive)
+   int64_t usSndDurationTotal;		// total time duration when UDT is sending data (idle time exclusive) //0
 
    // local measurements
    int64_t pktSent;                     // number of sent data packets, including retransmissions
@@ -188,17 +188,17 @@ struct CPerfMon
    int pktRecvNAK;                      // number of received NAK packets
    double mbpsSendRate;                 // sending rate in Mb/s
    double mbpsRecvRate;                 // receiving rate in Mb/s
-   int64_t usSndDuration;		// busy sending time (i.e., idle time exclusive)
-   double mbpsGoodput;		// busy sending time (i.e., idle time exclusive)
+   int64_t usSndDuration;		// busy sending time (i.e., idle time exclusive) //0
+   double mbpsGoodput;		// busy sending time (i.e., idle time exclusive)	//0
 
    // instant measurements
    double usPktSndPeriod;               // packet sending period, in microseconds
-   int pktFlowWindow;                   // flow window size, in number of packets
-   int pktCongestionWindow;             // congestion window size, in number of packets
+   int pktFlowWindow;                   // flow window size, in number of packets //1000000
+   int pktCongestionWindow;             // congestion window size, in number of packets //16
    int pktFlightSize;                   // number of packets on flight
    double msRTT;                        // RTT, in milliseconds
-   double mbpsBandwidth;                // estimated bandwidth, in Mb/s
-   int byteAvailSndBuf;                 // available UDT sender buffer size
+   double mbpsBandwidth;                // estimated bandwidth, in Mb/s //0.011648
+   int byteAvailSndBuf;                 // available UDT sender buffer size	//0
    int byteAvailRcvBuf;                 // available UDT receiver buffer size
 };
 

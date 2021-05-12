@@ -11,6 +11,7 @@ import pprint
 from time import sleep
 import sys, os
 import random
+import os.path
 
 _arg_dict = {}
 for arg in sys.argv:
@@ -52,7 +53,7 @@ class SingleSwitchTopo( Topo ):
             
 class SingleSwitchTopoWithLinkConfig( Topo ):
     "Single switch connected to n hosts with a link of given properties."
-    def build( self, n=2, net_config =dict(bw=1, delay="1s", loss=1, max_queue_size=100, use_htb=True )):
+    def build( self, n=2, net_config =dict(bw=10, delay="0.01s", loss=1, max_queue_size=100, use_htb=True )):
         switch = self.addSwitch( 's1' )
         for h in range(n):
             # Each host gets 50%/n of system CPU
@@ -80,7 +81,7 @@ def read_net_configs(net_configs, net_configs_path):
     with open(net_configs_path, 'r') as net_configs_file:
         for line in net_configs_file:
             bw, latency, loss, max_queue_size = line.split("\t")
-            linkopts = dict(bw=float(bw), delay=str(latency), loss=float(loss),
+            linkopts = dict(bw=float(bw), delay=str(latency)+'s', loss=float(loss),
                               max_queue_size=int(max_queue_size), use_htb=True )
             net_configs.append(linkopts)
     net_configs_file.close()
@@ -101,7 +102,7 @@ class SpawnMininet():
         
     def create_new_net(self, config):
         net_config = config
-        pprint.pprint(net_config, stream, indent, width, depth)
+        pprint.pprint(net_config)
         topo = SingleSwitchTopoWithLinkConfig(4, net_config )
         net = Mininet( topo=topo)
         #,               host=CPULimitedHost, link=TCLink )
@@ -126,6 +127,7 @@ class SpawnMininet():
         output_folder = arg_or_default("--output", default="/home/ubuntu/mininet_logs/")
         #random.shuffle(net_configs)
         for config in net_configs:
+            links_printed = 0
             config_name = "bw_"+str(config["bw"])+"_latency_"+config["delay"]+"_loss_"+str(config["loss"])+"_queue_"+str(config["max_queue_size"])
             #print(config_name)
             print("Testing with configuration: " + config_name)
@@ -135,8 +137,10 @@ class SpawnMininet():
             #RANDOMIZATION OF THE ORDER OF MODELS
             for model_name in model_names:
                 self.create_new_net(config)
-                #print("Links from self.net.topo.links():")
-                #pprint.pprint(self.net.topo.links(withKeys=True, withInfo=True))            
+                if(links_printed == 0):
+                    print("Links from self.net.topo.links():")
+                    pprint.pprint(self.net.topo.links(withKeys=True, withInfo=True)) 
+                    links_printed = 1           
                 h1, h2 = self.net.get( 'h1', 'h2' )  
                 #result = h1.cmd('ifconfig')
                 #print( result )
@@ -149,41 +153,48 @@ class SpawnMininet():
                 h2.cmd('cd /home/ubuntu/PCC-Uspace/src')
                 h2.cmd('export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/core/')
                 
-                if(model_name in ['Copa', 'Vivace', ]):
-                    pass
-                elif('Vivace' in model_name):
-                    pass
+                if(model_name in ['Copa', 'Vivace', 'Cubic'] or 'Vivace' in model_name):
+                    log_file_path = output_folder +config_name + "/"+ str(model_name) + ".txt"
+                    server_log_file_path = output_folder +config_name + "/receiver/"+ str(model_name) + ".txt"
+                    #h1.cmd("rm " + server_log_file_path)
+                    if not os.path.isfile(log_file_path):
+                        print("Server Output at " + server_log_file_path)
+                        sender_pid = h1.cmd('./app/pccserver recv 9000 > ' + server_log_file_path + ' &')
+                        #h2.cmd("rm " + log_file_path)
+                        print("Client Output at " + log_file_path)
+                        pid = h2.cmd("./app/pccclient send 10.0.0.1 9000 " + model_name + 
+                                     " > " + log_file_path + " &")
                 else:
                     model_path = str(model_folder_path) + str(model_name)
                     log_file_path = output_folder +config_name + "/"+ str(model_name) + ".txt"
-                    print("Testing with model at " + model_path)
-                    print("Client Output at " + log_file_path)
-                    
                     server_log_file_path = output_folder +config_name + "/receiver/"+ str(model_name) + ".txt"
-                    print("Server Output at " + server_log_file_path)
-                    sender_pid = h1.cmd('./app/pccserver recv 9000 > ' + server_log_file_path + ' &')
-                    print("PCC Server started with PID: " + str(sender_pid) + ".")
-                    #h2.cmd('./app/pccclient send 10.0.0.1 9000 > /home/ubuntu/mininet_logs/h2_LSTM_run6.out &')
-                    h2.cmd("rm log_file_path")
-                    pid = h2.cmd("./app/pccclient send 10.0.0.1 9000 --model-path=" + model_path + "--pcc-rate-control=python" \
+                    #h1.cmd("rm " + server_log_file_path)
+                    if not os.path.isfile(log_file_path):
+                        print("Server Output at " + server_log_file_path)
+                        sender_pid = h1.cmd('./app/pccserver recv 9000 > ' + server_log_file_path + ' &')
+                        #h2.cmd("rm " + log_file_path)
+                        print("Client Output at " + log_file_path)
+                        print("Testing with model at " + model_path)
+                        pid = h2.cmd("./app/pccclient send 10.0.0.1 9000 --model-path=" + model_path + "--pcc-rate-control=python" \
                            " -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ " \
                            "--history-len=10 --pcc-utility-calc=linear " \
                            " > " + log_file_path + " &")
-                    print("PCC Client started with PID: " + str(pid) + ".")
-                    #/home/ubuntu/models/LSTM_run6_1600x410_2048_1_lstm_dim_128
-                    if('LSTM' in model_name):
-                        if('64' in model_name):
-                            sleep(150 + 60)
-                        elif('128' in model_name):
-                            sleep(250 + 60)
-                        elif('256' in model_name):
-                            sleep(350 + 60)
-                        elif('512' in model_name):
-                            sleep(400 + 60)
-                        else:
-                            sleep(150+60)
+                
+                #print("PCC Server started with PID: " + str(sender_pid) + ".")
+                #print("PCC Client started with PID: " + str(pid) + ".")
+                if('LSTM' in model_name):
+                    if('64' in model_name):
+                        sleep(150 + 60)
+                    elif('128' in model_name):
+                        sleep(250 + 60)
+                    elif('256' in model_name):
+                        sleep(350 + 60)
+                    elif('512' in model_name):
+                        sleep(400 + 60)
                     else:
-                        sleep(60)
+                        sleep(150+60)
+                else:
+                    sleep(60)
                         
                     
                 h2.cmd('kill -9 ' + str(pid))
@@ -195,8 +206,9 @@ class SpawnMininet():
                 h1.cmd('kill -9 ' + str(sender_pid))
                     
                 #The axe
-                os.system('sudo mn -c')
-                wait_period = 20
+                print("Running sudo mn -c")
+                os.system('sudo mn -c > /tmp/sudo_mn_c.out')
+                wait_period = 10
                 print("Waiting for " + str(wait_period) + " seconds for Mininet processes to die...")
                 sleep(wait_period)#wait for processes to get killed
                 
@@ -218,29 +230,11 @@ def test_RL_models():
     testbed = SpawnMininet()
     #testbed.create_new_net()
     testbed.run_experiment()
-    testbed.net.stop()
-    #KILL lingering processes (defunct or running)
-    #sudo mn -c??????
-    
+    #testbed.net.stop()
 
 #DOn't FORGET
 #sudo PYTHONPATH=/usr/local/lib/python2.7/dist-packages:$PYTHONPATH python3 util/compare_models.py     
 test_RL_models()
-
-def perfTest():
-    "Create network and run simple performance test"
-    topo = SingleSwitchTopo( n=4 )
-    net = Mininet( topo=topo)
-    #,               host=CPULimitedHost, link=TCLink )
-    net.start()
-    print( "Dumping host connections" )
-    dumpNodeConnections( net.hosts )
-    print( "Testing network connectivity" )
-    net.pingAll()
-    print( "Testing bandwidth between h1 and h4" )
-    h1, h4 = net.get( 'h1', 'h4' )
-    net.iperf( (h1, h4) )
-    net.stop()
 
 if __name__ == '__main__':
     setLogLevel( 'info' )
