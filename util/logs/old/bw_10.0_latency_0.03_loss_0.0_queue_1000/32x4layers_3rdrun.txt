@@ -1,0 +1,6 @@
+Starting sending rate = 2.24e+06
+connect
+finished connect
+	Rate (Mbps)	RTT (ms)	Sent		Lost
+RS NULL
+1	2.08014		0.0815871		187		1

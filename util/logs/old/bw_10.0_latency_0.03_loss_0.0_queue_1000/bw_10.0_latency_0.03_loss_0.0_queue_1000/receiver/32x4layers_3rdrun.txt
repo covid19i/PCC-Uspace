@@ -1,0 +1,6 @@
+Starting sending rate = 2.24e+06
+server is ready at port: 9000
+Starting sending rate = 2.24e+06
+new connection: 10.0.0.2:35135
+Recv Rate(Mb/s)	RTT(ms)	Packets Recvd
+2.07778		10000	183		
