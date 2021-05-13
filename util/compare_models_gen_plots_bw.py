@@ -2,10 +2,7 @@
 
 import sys; print(sys.executable)
 
-from mininet.topo import Topo
-from mininet.net import Mininet
-from mininet.util import dumpNodeConnections
-from mininet.log import setLogLevel
+
 #from common.simple_arg_parse import arg_or_default
 import pprint
 from time import sleep
@@ -74,7 +71,7 @@ BYTES_PER_PACKET = 1500 - 28
 PACKET_SIZE = BYTES_PER_PACKET * 8
 ONE_MEGA_BIT = 1024 * 1024
 
-def gen_plots(self):
+def gen_plots():
     output_folder = arg_or_default("--output", default="/home/ubuntu/mininet_logs/")
     min_RTTs = []
     bandwidths = []
@@ -95,6 +92,7 @@ def gen_plots(self):
         print("Reading data for: " + config_name)
         config_folder = output_folder +config_name
         for model_name in model_names:
+            print(model_name)
             received_data = []
             RTTs = []
             
@@ -109,55 +107,59 @@ def gen_plots(self):
                       "Exiting now...")
                 sys.exit()
             
+            f = open(log_file_path)
+            lineno = 1
+            for line in f.readlines():
+                if(lineno > 5):
+                    #print(line)
+                    line = line.replace("\t\t\t", "\t")
+                    line = line.replace("\t\t", "\t")
+                    #BC = line.replace("\t\t", "\t").split('\t')
+                    #print(BC)
+                    row, send_rate, est_RTT, sent_total, sent, lost, lost_total, nak, ack = line.replace("\t\t", "\t").split('\t')
+                    est_RTT = float(est_RTT)
+                    #sent = int(sent)
+                    #lost = int(lost)
+                    ack = ack.replace("\n", "")
+                    ack = int(ack)
+                    received_data.append(ack * PACKET_SIZE)
+                    RTTs.append(est_RTT)
+                    #print(send_rate, est_RTT, ack)
+                    
+                lineno += 1
+            if(lineno < 6):
+                print("Model/algo " + model_name + " not well tested with configuration " + config_name +
+                  "Exiting now... only " + str(lineno) + " lines found in " + log_file_path)
+                sys.exit()
+            f.close()
             
-                print( "Reading first 20 lines of output from sender" )
-                f = open(log_file_path)
-                lineno = 1
-                for line in f.readlines():
-                    if(lineno > 5):
-                        row, send_rate, est_RTT, sent_total, sent, lost, lost_total, nak, ack = line.replace("\t\t", "\t").split('\t')
-                        est_RTT = float(est_RTT)
-                        #sent = int(sent)
-                        #lost = int(lost)
-                        ack = int(ack)
-                        received_data.append(ack * PACKET_SIZE)
-                        RTTs.append(est_RTT)
-                        
-                    lineno += 1
-                if(lineno < 6):
-                    print("Model/algo " + model_name + " not well tested with configuration " + config_name +
-                      "Exiting now... only " + str(lineno) + " lines found in " + log_file_path)
-                    sys.exit()
-                f.close()
-                
-                #evaluating the efficiency of the model/algo on this net config
-                avg_throughput = avg(received_data[-120:])
-                avg_RTT = avg(RTTs[-120:0])
-                model_throughputs[model_name].append(avg_throughput)
-                model_latencies[model_name].append(avg_RTT)
+            #evaluating the efficiency of the model/algo on this net config
+            rows_to_use = 120
+            avg_throughput = sum(received_data[-rows_to_use:])/rows_to_use
+            #print(RTTs[-rows_to_use:])
+            avg_RTT = sum(RTTs[-rows_to_use:])/rows_to_use
+            print("Avg throughput, Avg est RTT: %.5f %.5f" % (avg_throughput, avg_RTT))
+            model_throughputs[model_name].append(avg_throughput)
+            model_latencies[model_name].append(avg_RTT)
             min_RTT = min(min_RTT, min(RTTs))
         
         min_RTTs.append(min_RTT)
 
+    
+    
     plt.figure(num = 1)
     for model_name in model_names:
-        plt.plot(bandwidths, model_throughputs[model_name])
+        model_utilizations[model_name] = list(map(truediv, model_throughputs[model_name], bandwidths))
+        plt.plot(bandwidths, model_utilizations[model_name])
+    plt.xlabel('bandwidth')
+    plt.title('Link Utilization vs bandwidth')
     plt.show()
     plt.savefig('bandwidth_sensitivity.png')
-
-model_rewards = {}
-
-def print_rewards(s):
-    reward = []
-    
-    print(sum(reward[-10:])/10)
-    print('\n\n\n')
-    model_rewards[s] = sum(reward[-10:])/10
 
 gen_plots()
 
 #DOn't FORGET
 #sudo PYTHONPATH=/usr/local/lib/python2.7/dist-packages:$PYTHONPATH python3 util/compare_models.py     
 
-if __name__ == '__main__':
-    setLogLevel( 'info' )
+#if __name__ == '__main__':
+    #setLogLevel( 'info' )
