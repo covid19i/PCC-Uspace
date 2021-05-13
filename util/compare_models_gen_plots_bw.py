@@ -98,7 +98,8 @@ def gen_plots(self):
             received_data = []
             RTTs = []
             
-            if(model_name in ['Copa', 'Vivace', 'Cubic'] or 'Vivace' in model_name):
+            if(model_name in ['Copa', 'Vivace', 'Cubic', 'Aurora', 'Allegro'] or 'Vivace' in model_name 
+               or 'Aurora' in model_name):
                 log_file_path = output_folder +config_name + "/"+ str(model_name) + ".txt"
             else:
                 model_path = str(model_folder_path) + str(model_name)
@@ -142,6 +143,7 @@ def gen_plots(self):
     for model_name in model_names:
         plt.plot(bandwidths, model_throughputs[model_name])
     plt.show()
+    plt.savefig('bandwidth_sensitivity.png')
 
 model_rewards = {}
 
