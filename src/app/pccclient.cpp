@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
         seconds = difftime(timer,init_time);
         if(seconds > 160){
         	stop = true;
-        	//cout << "Stopping the client after 160 sec" << std::endl;
+        	cout << "Stopping the client since 160 sec passed" << std::endl;
         }
     }
 

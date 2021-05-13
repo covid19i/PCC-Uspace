@@ -114,7 +114,7 @@ class SpawnMininet():
         #net.pingAll()
         #print( "Testing bandwidth between h1 and h4" )
         h1, h2 = net.get( 'h1', 'h2' )
-        net.iperf( (h1, h2) )
+        #net.iperf( (h1, h2) )
         #CHECK WHY THIS RETURNS 24.1Gbits/s when bw=950 say
         
         #self.links = [Link(bw, lat, queue, loss), Link(bw, lat, queue, loss)]
@@ -136,6 +136,7 @@ class SpawnMininet():
             
             #RANDOMIZATION OF THE ORDER OF MODELS
             for model_name in model_names:
+                already_done = 0
                 self.create_new_net(config)
                 if(links_printed == 0):
                     print("Links from self.net.topo.links():")
@@ -164,6 +165,8 @@ class SpawnMininet():
                         print("Client Output at " + log_file_path)
                         pid = h2.cmd("./app/pccclient send 10.0.0.1 9000 " + model_name + 
                                      " > " + log_file_path + " &")
+                    else:
+                        already_done = 1
                 else:
                     model_path = str(model_folder_path) + str(model_name)
                     log_file_path = output_folder +config_name + "/"+ str(model_name) + ".txt"
@@ -179,31 +182,38 @@ class SpawnMininet():
                            " -pyhelper=loaded_client -pypath=/home/ubuntu/PCC-RL/src/udt-plugins/testing/ " \
                            "--history-len=10 --pcc-utility-calc=linear " \
                            " > " + log_file_path + " &")
+                    else:
+                        already_done = 1
                 
                 #print("PCC Server started with PID: " + str(sender_pid) + ".")
                 #print("PCC Client started with PID: " + str(pid) + ".")
-                if('LSTM' in model_name):
-                    if('64' in model_name):
-                        sleep(150 + 60)
-                    elif('128' in model_name):
-                        sleep(250 + 60)
-                    elif('256' in model_name):
-                        sleep(350 + 60)
-                    elif('512' in model_name):
-                        sleep(400 + 60)
+                if(already_done == 0):
+                    if('LSTM' in model_name):
+                        if('64' in model_name):
+                            sleep(25 + 120)
+                        elif('128' in model_name):
+                            sleep(25 + 120)
+                        elif('256' in model_name):
+                            sleep(30 + 120)
+                        elif('512' in model_name):
+                            sleep(40 + 120)
+                        else:
+                            sleep(20 + 120)
                     else:
-                        sleep(150+60)
-                else:
-                    sleep(60)
-                        
+                        if("Vivace" in model_name):
+                            sleep(10 + 120)
+                        else:
+                            sleep(0 + 120)
                     
-                h2.cmd('kill -9 ' + str(pid))
-                h2.cmd('kill %\./app/pccclient')
-                h2.cmd('kill %pccclient')
-                #h2.cmd('ps >> /home/ubuntu/mininet_logs/h2_LSTM_run6.out')
-                h1.cmd('kill %\./app/pccserver')
-                h1.cmd('kill %pccserver')
-                h1.cmd('kill -9 ' + str(sender_pid))
+                    h2.cmd('kill -9 ' + str(pid))
+                    h2.cmd('kill %\./app/pccclient')
+                    h2.cmd('kill %pccclient')
+                    #h2.cmd('ps >> /home/ubuntu/mininet_logs/h2_LSTM_run6.out')
+                    h1.cmd('kill %\./app/pccserver')
+                    h1.cmd('kill %pccserver')
+                    h1.cmd('kill -9 ' + str(sender_pid))
+                else:
+                    print("\n\nModel/algo " + model_name + "already used for this net config")
                     
                 #The axe
                 print("Running sudo mn -c")
@@ -212,15 +222,16 @@ class SpawnMininet():
                 print("Waiting for " + str(wait_period) + " seconds for Mininet processes to die...")
                 sleep(wait_period)#wait for processes to get killed
                 
-                print( "Reading first 7 lines of output from sender" )
-                f = open(log_file_path)
-                lineno = 1
-                for line in f.readlines():
-                    print( "%d: %s" % ( lineno, line.strip() ) )
-                    lineno += 1
-                    if lineno > 7:
-                        break
-                f.close()
+                if(already_done == 0):
+                    print( "Reading first 20 lines of output from sender" )
+                    f = open(log_file_path)
+                    lineno = 1
+                    for line in f.readlines():
+                        print( "%d: %s" % ( lineno, line.strip() ) )
+                        lineno += 1
+                        if lineno > 20:
+                            break
+                    f.close()
             
             #pid = int( h1.cmd('echo $!') )
             #h1.cmd('wait', pid)
