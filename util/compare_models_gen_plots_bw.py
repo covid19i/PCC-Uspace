@@ -10,6 +10,7 @@ import sys, os
 import random
 import os.path
 import matplotlib.pyplot as plt
+from operator import truediv, sub
 
 _arg_dict = {}
 for arg in sys.argv:
@@ -85,7 +86,7 @@ def gen_plots():
         
     for config in net_configs:
         bandwidths.append(config["bw"])
-        latencies.append(float(config["delay"].replace("s", "")) )
+        latencies.append(4 * float(config["delay"].replace("s", "")) )#h1 -> s -> h2 and reverse
         min_RTT = 100000000.0
         config_name = "bw_"+str(config["bw"])+"_latency_"+config["delay"]+"_loss_"+str(config["loss"])+"_queue_"+str(config["max_queue_size"])
         #print(config_name)
@@ -145,15 +146,36 @@ def gen_plots():
         
         min_RTTs.append(min_RTT)
 
-    
-    
+    pprint.pprint(model_throughputs)
+    pprint.pprint(bandwidths)
+    model_utilizations = {}
     plt.figure(num = 1)
     for model_name in model_names:
-        model_utilizations[model_name] = list(map(truediv, model_throughputs[model_name], bandwidths))
-        plt.plot(bandwidths, model_utilizations[model_name])
-    plt.xlabel('bandwidth')
-    plt.title('Link Utilization vs bandwidth')
+        model_utilizations[model_name] = list(map(truediv, model_throughputs[model_name], 
+                                                  [ONE_MEGA_BIT * bandwidth for bandwidth in bandwidths]))
+        plt.plot(bandwidths, model_utilizations[model_name], label = model_name )
+        pprint.pprint(model_utilizations[model_name])
+    plt.xlabel('Bandwidth (in Mbps)')
+    plt.ylabel('Link Utilization')
+    plt.xscale("log")
+    plt.title('Link Utilization vs Bandwidth')
+    plt.legend()
     plt.show()
+    
+    self_inflicted_latencies = {}
+    plt.figure(num = 2)
+    for model_name in model_names:
+        self_inflicted_latencies[model_name] = list(map(sub, model_latencies[model_name], 
+                                                  min_RTTs))
+        plt.plot(bandwidths, self_inflicted_latencies[model_name], label = model_name )
+        pprint.pprint(self_inflicted_latencies[model_name])
+    plt.xlabel('Bandwidth (in Mbps)')
+    plt.ylabel('Self-inflicted latency (ms)')
+    plt.xscale("log")
+    plt.title('Self-inflicted latency vs Bandwidth')
+    plt.legend()
+    plt.show()
+    
     plt.savefig('bandwidth_sensitivity.png')
 
 gen_plots()

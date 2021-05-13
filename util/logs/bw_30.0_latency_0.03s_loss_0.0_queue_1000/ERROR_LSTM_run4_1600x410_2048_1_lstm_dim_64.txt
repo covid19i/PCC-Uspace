@@ -1,0 +1,11 @@
+This function will only be available through the v1 compatibility library as tf.compat.v1.saved_model.loader.load or tf.compat.v1.saved_model.load. There will be a new function for importing SavedModels in Tensorflow 2.0.
+Traceback (most recent call last):
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_client.py", line 173, in init
+    driver = PccGymDriver(flow_id)
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_client.py", line 77, in __init__
+    self.agent = loaded_agent.LoadedModelAgent(MODEL_PATH)
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py", line 117, in __init__
+    self.model = LoadedModel(model_path)
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py", line 50, in __init__
+    dim_1 = int(lines[1].split(":")[1].strip(" "))
+IndexError: list index out of range

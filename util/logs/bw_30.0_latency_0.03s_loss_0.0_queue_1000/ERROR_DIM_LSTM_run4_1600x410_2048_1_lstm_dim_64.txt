@@ -1,0 +1,17 @@
+finished connect
+	Send Rate (Mbps)	Est RTT (ms)	Sent Total	Sent	SendLoss	SendLossTotal	NAK	ACK
+ERROR: Failed to call python get_rate() func
+Traceback (most recent call last):
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_client.py", line 170, in get_rate
+    return driver.get_rate()
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_client.py", line 83, in get_rate
+    rate_delta = self.agent.act(self.history.as_array())
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py", line 129, in act
+    act_dict = self.model.act(ob.reshape(1,-1), stochastic=False)
+  File "/home/ubuntu/PCC-RL/src/udt-plugins/testing/loaded_agent.py", line 106, in act
+    sess_output = self.sess.run(self.output_act_label, feed_dict=input_dict)
+  File "/home/ubuntu/environments/my_env/lib/python3.5/site-packages/tensorflow_core/python/client/session.py", line 956, in run
+    run_metadata_ptr)
+  File "/home/ubuntu/environments/my_env/lib/python3.5/site-packages/tensorflow_core/python/client/session.py", line 1156, in _run
+    (np_val.shape, subfeed_t.name, str(subfeed_t.get_shape())))
+ValueError: Cannot feed value of shape (1, 128) for Tensor 'input_1/states_ph:0', which has shape '(1, 512)'
