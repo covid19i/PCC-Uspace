@@ -68,6 +68,20 @@ read_net_configs(net_configs, net_configs_path)
 print("Net Configurations:")
 pprint.pprint(net_configs)
 
+def read_plot_styles(plot_styles, plot_styles_path):
+    with open(plot_styles_path, 'r') as plot_styles_file:
+        for line in plot_styles_file:
+            print(line)
+            model_name, style = line.replace("\n", "").split("\t")
+            plot_styles[model_name] = style
+    plot_styles_file.close()
+
+plot_styles_path = arg_or_default("--plot_styles", default="/home/ubuntu/plot_styles.txt")
+plot_styles = {}
+read_plot_styles(plot_styles, plot_styles_path)
+print("Plot Styles:")
+pprint.pprint(plot_styles)
+
 BYTES_PER_PACKET = 1500 - 28
 PACKET_SIZE = BYTES_PER_PACKET * 8
 ONE_MEGA_BIT = 1024 * 1024
@@ -153,7 +167,7 @@ def gen_plots():
     for model_name in model_names:
         model_utilizations[model_name] = list(map(truediv, model_throughputs[model_name], 
                                                   [ONE_MEGA_BIT * bandwidth for bandwidth in bandwidths]))
-        plt.plot(bandwidths, model_utilizations[model_name], label = model_name )
+        plt.plot(bandwidths, model_utilizations[model_name], plot_styles[model_name], label = model_name )
         pprint.pprint(model_utilizations[model_name])
     plt.xlabel('Bandwidth (in Mbps)')
     plt.ylabel('Link Utilization')
@@ -167,7 +181,7 @@ def gen_plots():
     for model_name in model_names:
         self_inflicted_latencies[model_name] = list(map(sub, model_latencies[model_name], 
                                                   min_RTTs))
-        plt.plot(bandwidths, self_inflicted_latencies[model_name], label = model_name )
+        plt.plot(bandwidths, self_inflicted_latencies[model_name], plot_styles[model_name], label = model_name )
         pprint.pprint(self_inflicted_latencies[model_name])
     plt.xlabel('Bandwidth (in Mbps)')
     plt.ylabel('Self-inflicted latency (ms)')

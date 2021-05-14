@@ -53,7 +53,7 @@ class SingleSwitchTopo( Topo ):
             
 class SingleSwitchTopoWithLinkConfig( Topo ):
     "Single switch connected to n hosts with a link of given properties."
-    def build( self, n=2, net_config =dict(bw=10, delay="0.01s", loss=1, max_queue_size=100, use_htb=True )):
+    def build( self, n=2, net_config =dict(bw=30, delay="30ms", loss=0, max_queue_size=1000, use_htb=True )):
         switch = self.addSwitch( 's1' )
         for h in range(n):
             # Each host gets 50%/n of system CPU
