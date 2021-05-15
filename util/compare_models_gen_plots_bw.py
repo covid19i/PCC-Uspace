@@ -71,7 +71,7 @@ pprint.pprint(net_configs)
 def read_plot_styles(plot_styles, plot_styles_path):
     with open(plot_styles_path, 'r') as plot_styles_file:
         for line in plot_styles_file:
-            print(line)
+            #print(line)
             model_name, style = line.replace("\n", "").split("\t")
             plot_styles[model_name] = style
     plot_styles_file.close()
@@ -81,6 +81,12 @@ plot_styles = {}
 read_plot_styles(plot_styles, plot_styles_path)
 print("Plot Styles:")
 pprint.pprint(plot_styles)
+
+model_labels_path = arg_or_default("--model_labels", default="/home/ubuntu/model_labels.txt")
+model_labels = {}
+read_plot_styles(model_labels, model_labels_path)
+print("Model Labels:")
+pprint.pprint(model_labels)
 
 BYTES_PER_PACKET = 1500 - 28
 PACKET_SIZE = BYTES_PER_PACKET * 8
@@ -104,7 +110,7 @@ def gen_plots():
         min_RTT = 100000000.0
         config_name = "bw_"+str(config["bw"])+"_latency_"+config["delay"]+"_loss_"+str(config["loss"])+"_queue_"+str(config["max_queue_size"])
         #print(config_name)
-        print("Reading data for: " + config_name)
+        print("\nReading data for: " + config_name)
         config_folder = output_folder +config_name
         for model_name in model_names:
             print(model_name)
@@ -118,75 +124,111 @@ def gen_plots():
                 model_path = str(model_folder_path) + str(model_name)
                 log_file_path = output_folder +config_name + "/"+ str(model_name) + ".txt"
             if not os.path.isfile(log_file_path):
-                print("Model/algo " + model_name + " not tested with configuration " + config_name +
-                      "Exiting now...")
-                sys.exit()
-            
-            f = open(log_file_path)
-            lineno = 1
-            for line in f.readlines():
-                if(lineno > 5):
+                #print("Model/algo " + model_name + " not tested with configuration " + config_name +
+                #      "Exiting now...")
+                #sys.exit()
+                model_throughputs[model_name].append(None)
+                model_latencies[model_name].append(None)
+            else:
+                f = open(log_file_path)
+                lineno = 1
+                SKIP_LINES = 5
+                for line in f.readlines():
                     #print(line)
                     line = line.replace("\t\t\t", "\t")
                     line = line.replace("\t\t", "\t")
-                    #BC = line.replace("\t\t", "\t").split('\t')
-                    #print(BC)
-                    row, send_rate, est_RTT, sent_total, sent, lost, lost_total, nak, ack = line.replace("\t\t", "\t").split('\t')
-                    est_RTT = float(est_RTT)
-                    #sent = int(sent)
-                    #lost = int(lost)
-                    ack = ack.replace("\n", "")
-                    ack = int(ack)
-                    received_data.append(ack * PACKET_SIZE)
-                    RTTs.append(est_RTT)
-                    #print(send_rate, est_RTT, ack)
-                    
-                lineno += 1
-            if(lineno < 6):
-                print("Model/algo " + model_name + " not well tested with configuration " + config_name +
-                  "Exiting now... only " + str(lineno) + " lines found in " + log_file_path)
-                sys.exit()
-            f.close()
-            
-            #evaluating the efficiency of the model/algo on this net config
-            rows_to_use = 120
-            avg_throughput = sum(received_data[-rows_to_use:])/rows_to_use
-            #print(RTTs[-rows_to_use:])
-            avg_RTT = sum(RTTs[-rows_to_use:])/rows_to_use
-            print("Avg throughput, Avg est RTT: %.5f %.5f" % (avg_throughput, avg_RTT))
-            model_throughputs[model_name].append(avg_throughput)
-            model_latencies[model_name].append(avg_RTT)
-            min_RTT = min(min_RTT, min(RTTs))
+                    if(lineno == SKIP_LINES and 'Vivace' in model_name):
+                        row, send_rate, est_RTT, sent_total, lost_total = line.replace("\t\t", "\t").split('\t')
+                        send_rate = float(send_rate)
+                        sent_total = int(sent_total)
+                        lost_total = int(lost_total)
+                    if(lineno > SKIP_LINES):
+                        #print(line)
+                        #BC = line.replace("\t\t", "\t").split('\t')
+                        #print(BC)
+                        if('Vivace' in model_name):
+                            prev_send_rate, prev_sent_total, prev_lost_total = send_rate, sent_total, lost_total
+                            row, send_rate, est_RTT, sent_total, lost_total = line.replace("\t\t", "\t").split('\t')
+                            send_rate = float(send_rate)
+                            sent_total = int(sent_total)
+                            lost_total = int(lost_total)
+                            ack = sent_total - prev_sent_total - (lost_total - prev_lost_total)
+                        else:
+                            row, send_rate, est_RTT, sent_total, sent, lost, lost_total, nak, ack = line.replace("\t\t", "\t").split('\t')
+                            ack = ack.replace("\n", "")
+                            ack = int(ack)
+                        send_rate = float(send_rate)
+                        sent_total = int(sent_total)
+                        lost_total = int(lost_total)
+                        est_RTT = float(est_RTT)
+                        #sent = int(sent)
+                        #lost = int(lost)
+                        received_data.append(ack * PACKET_SIZE)
+                        RTTs.append(est_RTT)
+                        #print(send_rate, est_RTT, ack)
+                        
+                    lineno += 1
+                if(lineno < SKIP_LINES + 1):
+                    print("Model/algo " + model_name + " not well tested with configuration " + config_name +
+                      "Exiting now... only " + str(lineno) + " lines found in " + log_file_path)
+                    sys.exit()
+                f.close()
+                
+                #evaluating the efficiency of the model/algo on this net config
+                rows_to_use = 120
+                avg_throughput = sum(received_data[-rows_to_use:])/rows_to_use
+                #print(RTTs[-rows_to_use:])
+                avg_RTT = sum(RTTs[-rows_to_use:])/rows_to_use
+                print("Avg throughput, Avg est RTT: %.5f %.5f" % (avg_throughput, avg_RTT))
+                model_throughputs[model_name].append(avg_throughput)
+                model_latencies[model_name].append(avg_RTT)
+                min_RTT = min(min_RTT, min(RTTs))
         
         min_RTTs.append(min_RTT)
-
+    
+    print("Model throughputs:")
     pprint.pprint(model_throughputs)
+    print("Bandwidths:")
     pprint.pprint(bandwidths)
     model_utilizations = {}
+    print("Utilizations:")
     plt.figure(num = 1)
     for model_name in model_names:
-        model_utilizations[model_name] = list(map(truediv, model_throughputs[model_name], 
-                                                  [ONE_MEGA_BIT * bandwidth for bandwidth in bandwidths]))
-        plt.plot(bandwidths, model_utilizations[model_name], plot_styles[model_name], label = model_name )
-        pprint.pprint(model_utilizations[model_name])
+        relevant_utilizations = model_throughputs[model_name]
+        if(len(relevant_utilizations) is not 0):
+            relevant_utilizations, relevant_bandwidths = zip(* filter( lambda x: x[0] is not None , zip(model_throughputs[model_name],bandwidths) ))
+            relevant_utilizations = list(map(truediv, relevant_utilizations, 
+                                                      [ONE_MEGA_BIT * bandwidth for bandwidth in relevant_bandwidths]))
+    
+            plt.plot(relevant_bandwidths, relevant_utilizations, plot_styles[model_name], label = model_labels[model_name] )
+            pprint.pprint(relevant_utilizations)
     plt.xlabel('Bandwidth (in Mbps)')
     plt.ylabel('Link Utilization')
     plt.xscale("log")
+    #plt.set_xticks(bandwidths)
     plt.title('Link Utilization vs Bandwidth')
     plt.legend()
     plt.show()
     
+    print("Latencies:")
     self_inflicted_latencies = {}
     plt.figure(num = 2)
     for model_name in model_names:
-        self_inflicted_latencies[model_name] = list(map(sub, model_latencies[model_name], 
-                                                  min_RTTs))
-        plt.plot(bandwidths, self_inflicted_latencies[model_name], plot_styles[model_name], label = model_name )
-        pprint.pprint(self_inflicted_latencies[model_name])
+        relevant_latencies = model_latencies[model_name]
+        if(len(relevant_latencies) is not 0):
+            relevant_latencies, relevant_bandwidths, relevant_min_RTTs = zip(* filter( lambda x: x[0] is not None , zip(model_latencies[model_name], bandwidths, min_RTTs) ))
+            #relevant_latencies = list(map(sub, relevant_latencies, 
+            #                                          relevant_min_RTTs))
+            plt.plot(relevant_bandwidths, relevant_latencies, plot_styles[model_name], label = model_labels[model_name] )
+            pprint.pprint(relevant_latencies)
     plt.xlabel('Bandwidth (in Mbps)')
-    plt.ylabel('Self-inflicted latency (ms)')
+    #plt.ylabel('Self-inflicted latency (ms)')
+    plt.ylabel('Absolute latency (ms)')
     plt.xscale("log")
-    plt.title('Self-inflicted latency vs Bandwidth')
+    #plt.set_xticks(bandwidths)
+    plt.yscale("log")
+    #plt.title('Self-inflicted latency vs Bandwidth')
+    plt.title('Absolute latency vs Bandwidth')
     plt.legend()
     plt.show()
     

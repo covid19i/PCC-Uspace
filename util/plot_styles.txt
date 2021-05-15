@@ -1,9 +1,10 @@
 32x4layers_60loops_run2	gx-
 32x4layers_60loops	b+--
 8layers_60loops	cH-.
-Allegro	ms-
+Allegro	ms:
 Aurora	k:d
-Copa	m-D
+Copa	m-.D
+Cubic	gs:
 LSTM_run15_1600x410_loops_12_timesteps_2048_1_lstm_dim_64_shared_32,32	bo--
 LSTM_run16_1600x410_loops_24_timesteps_512_1_lstm_dim_128_shared_64,64	gp--
 LSTM_run17_1600x410_loops_48_timesteps_256_1_lstm_dim_256	rp-
@@ -16,3 +17,4 @@ original_60_loops	go-
 original_six_loops	gh:
 Vivace	ko:
 LN_LSTM_run22_1600x410_loops_6_timesteps_2048_1_lstm_dim_64	rH-
+LSTM_run11_1600x410_loops_6_timesteps_2048_1_lstm_dim_128	rd--

@@ -1,0 +1,52 @@
+mininet> h2 ./sender serverip=10.0.0.1 serverport=9000 sourceip=10.0.0.2 cctype=markovian onduration=150000 offduration=0 delta_conf=constant_delta:0.5 &
+Unrecognised option 'sourceip=10.0.0.2'.
+Using MarkovianCC.
+Constant delta mode with delta = 0.5
+Assigning Source ID: 501118582
+Assuming training link rate of: 2666.67 pkts/sec
+Could not establish connection
+Connection Established.
+Received incorrect ack for src -1 to 501118582 for flow -1 to 0
+
+
+mininet> h2 ./sender serverip=10.0.0.1 serverport=9000 sourceip=10.0.0.2 cctype=tcp onduration=150000 offduration=0 delta_conf=constant_delta:0.5 &
+Unrecognised option 'sourceip=10.0.0.2'.
+Using UDT's TCP CC.
+Assigning Source ID: 2028537666
+Assuming training link rate of: 2666.67 pkts/sec
+Connection Established.
+
+
+Data Successfully Transmitted
+	Throughput: 1.75362e+06 bytes/sec
+	Average Delay: 0.120574 sec/packet
+	Completion time: 34.8029sec
+
+	Avg. Throughput: 1.75362e+06 bytes/sec
+	Average Delay: 0.120574 sec/packet
+Sender: 2028537666, Flow: 1. Transmitted for 34802.8 ms.
+Assuming training link rate of: 2666.67 pkts/sec
+Connection Established.
+
+
+Data Successfully Transmitted
+	Throughput: 447773 bytes/sec
+	Average Delay: 0.120721 sec/packet
+	Completion time: 8.1284sec
+
+	Avg. Throughput: 1.50638e+06 bytes/sec
+	Average Delay: 0.120582 sec/packet
+Sender: 2028537666, Flow: 2. Transmitted for 8128.4 ms.
+Assuming training link rate of: 2666.67 pkts/sec
+Connection Established.
+
+Data Successfully Transmitted
+	Throughput: 2.4071e+06 bytes/sec
+	Average Delay: 0.133921 sec/packet
+	Completion time: 54.526sec
+
+	Avg. Throughput: 2.01032e+06 bytes/sec
+	Average Delay: 0.129518 sec/packet
+Sender: 2028537666, Flow: 3. Transmitted for 54526 ms.
+Assuming training link rate of: 2666.67 pkts/sec
+Connection Established.

@@ -1,8 +1,5 @@
 32x4layers_60loops_run2
 32x4layers_60loops
-Copa
-Allegro
-Aurora
 Vivace
 LSTM_run15_1600x410_loops_12_timesteps_2048_1_lstm_dim_64_shared_32,32
 LSTM_run11_1600x410_loops_6_timesteps_2048_1_lstm_dim_128
