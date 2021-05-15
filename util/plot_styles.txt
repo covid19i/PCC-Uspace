@@ -13,6 +13,8 @@ LSTM_run4_1600x410_2048_1_lstm_dim_256	mh-
 LSTM_run8_1600x410_loops_60_timesteps_1024_1_lstm_dim_256	b^-.
 LSTM_run9_1600x410_loops_60_timesteps_2048_1_lstm_dim_64	r|-.
 LSTM_run6_1600x410_2048_1_lstm_dim_128	c*-
+LSTM_run7_1600x410_2048_1_lstm_dim_16	mh--
+LSTM_run13_1600x410_loops_6_timesteps_2048_1_lstm_dim_512	kp-.
 original_60_loops	go-
 original_six_loops	gh:
 Vivace	ko:
