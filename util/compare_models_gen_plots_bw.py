@@ -194,8 +194,10 @@ def gen_plots():
     print("Utilizations:")
     plt.figure(num = 1)
     for model_name in model_names:
+        print(model_name)
         relevant_utilizations = model_throughputs[model_name]
-        if(len(relevant_utilizations) is not 0):
+        print(relevant_utilizations)
+        if(len(relevant_utilizations) != relevant_utilizations.count(None)):
             relevant_utilizations, relevant_bandwidths = zip(* filter( lambda x: x[0] is not None , zip(model_throughputs[model_name],bandwidths) ))
             relevant_utilizations = list(map(truediv, relevant_utilizations, 
                                                       [ONE_MEGA_BIT * bandwidth for bandwidth in relevant_bandwidths]))
@@ -214,8 +216,9 @@ def gen_plots():
     self_inflicted_latencies = {}
     plt.figure(num = 2)
     for model_name in model_names:
+        print(model_name)
         relevant_latencies = model_latencies[model_name]
-        if(len(relevant_latencies) is not 0):
+        if(len(relevant_latencies) != relevant_latencies.count(None)):
             relevant_latencies, relevant_bandwidths, relevant_min_RTTs = zip(* filter( lambda x: x[0] is not None , zip(model_latencies[model_name], bandwidths, min_RTTs) ))
             #relevant_latencies = list(map(sub, relevant_latencies, 
             #                                          relevant_min_RTTs))
