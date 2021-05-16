@@ -1,2 +1,0 @@
-32x4layers_60loops
-LSTM_run1_1600x410_2048_1_64
